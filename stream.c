@@ -28,10 +28,10 @@
 #include "stream.h"
 #include "utils.h"
 
-//static_assert(CHAR_BIT == 8, "CHAR_BIT must be exactly 8");
-//static_assert(CHAR_MIN <= -128, "CHAR_MIN must be at most -128");
-//static_assert(INT_MIN <= -32768, "INT_MIN must be at most -32768");
-//static_assert(LONG_MIN <= -2147483648, "LONG_MIN must be at most -2147483648");
+static_assert(CHAR_BIT == 8, "CHAR_BIT must be exactly 8");
+static_assert(CHAR_MIN <= -128, "CHAR_MIN must be at most -128");
+static_assert(INT_MIN <= -32768, "INT_MIN must be at most -32768");
+static_assert(LONG_MIN <= -2147483648, "LONG_MIN must be at most -2147483648");
 
 struct fs {
 	struct slv_stream stream;

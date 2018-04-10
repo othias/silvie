@@ -1,6 +1,6 @@
 # Silvie
 
-Silvie is an asset extractor for Silver, an action RPG developed by Spiral House in 1999.
+Silvie is an asset extractor for Silver, an action RPG from 1999 developed by Spiral House.
 
 ````
 $ silvie
@@ -33,7 +33,7 @@ $ apt-get install libgif-dev lib3ds-dev libglu1-mesa-dev
 
 ## Installation
 
-Once the required dependencies are installed, you can use a C11-compliant compiler to build Silvie:
+Once the required dependencies are installed, you can use a C11 compiler to build Silvie:
 
 ````
 $ gcc *.c -o silvie -std=c11 -lgif -l3ds -lGLU -lGL

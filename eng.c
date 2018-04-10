@@ -87,7 +87,7 @@ static void unxor(size_t pos, void *buf, size_t sz)
 {
 	for (size_t i = 0; i < sz; ++i, ++pos) {
 		unsigned char *bytes = buf;
-		unsigned char key[] = {0x52, 0xA6, 0xFA};
+		unsigned char key[] = {0x52, 0xa6, 0xfa};
 		bytes[i] ^= (unsigned char)
 		            (key[pos % sizeof key] - 4 * (pos / sizeof key));
 	}

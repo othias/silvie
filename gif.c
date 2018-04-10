@@ -65,10 +65,10 @@ struct GifFileType *slv_open_gif(const struct slv_gif_opts *opts,
 		goto free_map;
 	}
 	if (opts->animated) {
-		GifByteType block_0[] = "NETSCAPE2.0";
+		GifByteType block_0[11] = "NETSCAPE2.0";
 		GifByteType block_1[] = {0x01, 0x00, 0x00};
 		if (!EGifPutExtensionLeader(gif, APPLICATION_EXT_FUNC_CODE)
-		    || !EGifPutExtensionBlock(gif, sizeof block_0 - 1, block_0)
+		    || !EGifPutExtensionBlock(gif, sizeof block_0, block_0)
 		    || !EGifPutExtensionBlock(gif, sizeof block_1, block_1)
 		    || !EGifPutExtensionTrailer(gif)) {
 			slv_set_err(err, SLV_LIB_GIF, gif->Error);

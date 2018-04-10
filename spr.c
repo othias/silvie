@@ -381,7 +381,7 @@ static bool save(const void *me)
 		suffix[0] = 'm';
 		struct GifColorType mask_colors[] = {
 			{0, 0, 0},
-			{0xFF, 0xFF, 0xFF},
+			{0xff, 0xff, 0xff},
 		};
 		opts.num_colors = SLV_LEN(mask_colors);
 		opts.colors = mask_colors;

@@ -17,6 +17,7 @@
  */
 
 #include <gif_lib.h>
+#include <GL/gl.h>
 #include <GL/glu.h>
 #include <lib3ds/file.h>
 #include <lib3ds/material.h>
@@ -151,10 +152,9 @@ static bool load_mesh_group(struct slv_chr_mesh_group *group,
 		                        group->mesh_ids))
 			return false;
 		return true;
-	default:
-		slv_set_err(stream->err, SLV_LIB_SLV, SLV_ERR_CHR_GROUP_TYPE);
-		return false;
 	}
+	slv_set_err(stream->err, SLV_LIB_SLV, SLV_ERR_CHR_GROUP_TYPE);
+	return false;
 }
 
 static bool load_mesh_groups(struct slv_chr_root *root,
@@ -368,7 +368,7 @@ struct tess_vtx {
 static void APIENTRY tess_vtx_cb(void *data, void *user)
 {
 	struct tess_ctx *ctx = user;
-	struct tess_vtx *vtx = data;
+	const struct tess_vtx *vtx = data;
 	if (ctx->cur_vtx == 2)
 		ctx->tesselate(vtx->idx, ctx);
 	else
@@ -377,7 +377,7 @@ static void APIENTRY tess_vtx_cb(void *data, void *user)
 
 static void APIENTRY tess_err_cb(GLenum code, void *user)
 {
-	struct tess_ctx *ctx = user;
+	const struct tess_ctx *ctx = user;
 	ctx->err->lib = SLV_LIB_GLU;
 	ctx->err->glu_code = code;
 }

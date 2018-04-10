@@ -1,6 +1,6 @@
 # Silvie
 
-Silvie is an asset extractor for Silver, an action RPG from 1999 developed by Spiral House.
+Silvie is an asset extractor for Silver, an action RPG developed by Spiral House in 1999.
 
 ````
 $ silvie

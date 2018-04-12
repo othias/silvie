@@ -293,6 +293,7 @@ struct tess_ctx {
 	const struct slv_chr_mesh *chr_mesh;
 	struct Lib3dsFile *file;
 	struct Lib3dsMesh *lib3ds_mesh;
+	bool has_err;
 	struct slv_err *err;
 };
 
@@ -377,9 +378,10 @@ static void APIENTRY tess_vtx_cb(void *data, void *user)
 
 static void APIENTRY tess_err_cb(GLenum code, void *user)
 {
-	const struct tess_ctx *ctx = user;
+	struct tess_ctx *ctx = user;
 	ctx->err->lib = SLV_LIB_GLU;
 	ctx->err->glu_code = code;
+	ctx->has_err = true;
 }
 
 static double find_v(unsigned idx, unsigned long off,
@@ -458,7 +460,7 @@ static bool tesselate(const struct slv_chr_face *face, struct tess_ctx *ctx)
 	}
 	gluTessEndContour(ctx->tess);
 	gluTessEndPolygon(ctx->tess);
-	if (ctx->err->glu_code)
+	if (ctx->has_err)
 		goto free_tess_tris;
 	struct slv_chr_face tess_face = *face;
 	for (size_t i = 0; i < num_tess_tris; ++i) {

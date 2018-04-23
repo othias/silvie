@@ -20,7 +20,7 @@ For usage information on a given format, type:
 
 ## Dependencies
 
-* libgif for saving GIF files
+* libgif >= 5.0 for saving GIF files
 * lib3ds for saving 3DS files
 * libglu for polygon triangulation
 

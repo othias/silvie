@@ -590,13 +590,16 @@ static bool save_group(unsigned short idx, struct tess_ctx *ctx)
 		num_tris += get_num_tris(m);
 	}
 	struct Lib3dsMesh *lib3ds_mesh = lib3ds_mesh_new(node->name);
+	if (!lib3ds_mesh) {
+		slv_set_errno(ctx->err);
+		goto free_chr_mshes;
+	}
 	unsigned num_vertices = 3 * num_tris;
-	if (!lib3ds_mesh
-	    || !lib3ds_mesh_new_point_list(lib3ds_mesh, num_vertices)
+	if (!lib3ds_mesh_new_point_list(lib3ds_mesh, num_vertices)
 	    || !lib3ds_mesh_new_texel_list(lib3ds_mesh, num_vertices)
 	    || !lib3ds_mesh_new_face_list(lib3ds_mesh, num_tris)) {
 		slv_set_errno(ctx->err);
-		free(lib3ds_mesh);
+		lib3ds_mesh_free(lib3ds_mesh);
 		goto free_chr_mshes;
 	}
 	ctx->num_tris = 0;

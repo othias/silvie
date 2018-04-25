@@ -499,8 +499,7 @@ static bool save_mesh(struct tess_ctx *ctx)
 	return true;
 }
 
-static struct Lib3dsNode *save_node(unsigned short idx,
-                                    const struct tess_ctx *ctx)
+static struct Lib3dsNode *save_node(size_t idx, const struct tess_ctx *ctx)
 {
 	struct Lib3dsNode *lib3ds_node = lib3ds_node_new_object();
 	if (!lib3ds_node) {
@@ -512,12 +511,14 @@ static struct Lib3dsNode *save_node(unsigned short idx,
 		slv_set_errno(ctx->err);
 		goto free_node;
 	}
-	if (slv_sprintf(lib3ds_node->name, ctx->err, "%hu", idx) < 0)
+	unsigned short idx_us;
+	if (!slv_sz_to_us(idx, &idx_us, ctx->err)
+	    || slv_sprintf(lib3ds_node->name, ctx->err, "%hu", idx_us) < 0)
 		goto free_key;
 	const struct slv_chr_node *chr_node = &ctx->root->nodes.nodes[idx];
 	memcpy(key->value, chr_node->pos, sizeof key->value);
-	lib3ds_node->node_id = idx;
-	if (chr_node->parent_idx == idx
+	lib3ds_node->node_id = idx_us;
+	if (chr_node->parent_idx == idx_us
 	    || chr_node->parent_idx == -1)
 		lib3ds_node->parent_id = LIB3DS_NO_PARENT;
 	else if (!slv_l_to_us(chr_node->parent_idx, &lib3ds_node->parent_id,
@@ -546,7 +547,7 @@ static unsigned get_num_tris(const struct slv_chr_mesh *mesh)
 	return num_tris;
 }
 
-static bool save_group(unsigned short idx, struct tess_ctx *ctx)
+static bool save_group(size_t idx, struct tess_ctx *ctx)
 {
 	const struct slv_chr_root *root = ctx->root;
 	const struct slv_chr_mesh_group *group = &root->mesh_groups.groups[idx];
@@ -661,8 +662,10 @@ static bool save(const void *me)
 			slv_set_errno(chr->asset.err);
 			goto free_file;
 		}
-		if (slv_sprintf(mat->name, chr->asset.err, "mat%zu", i) < 0)
+		if (slv_sprintf(mat->name, chr->asset.err, "mat%zu", i) < 0) {
+			lib3ds_material_free(mat);
 			goto free_file;
+		}
 		struct Lib3dsTextureMap *map = &mat->texture1_map;
 		strcpy(map->name, gif_name);
 		unsigned long off = offsets->offsets[i];
@@ -690,7 +693,7 @@ static bool save(const void *me)
 		.file = file,
 		.err = chr->asset.err,
 	};
-	for (unsigned short i = 0; i < root->nodes.num_nodes; ++i)
+	for (size_t i = 0; i < root->nodes.num_nodes; ++i)
 		if (!save_group(i, &ctx))
 			goto del_tess;
 	strcpy(extension, ".3ds");

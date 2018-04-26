@@ -476,7 +476,7 @@ static bool tesselate(const struct slv_chr_face *face, struct tess_ctx *ctx)
 			face->vertices[tri->indices[2]],
 		};
 		if (!save_tri(&tess_face, ctx))
-			return false;
+			goto free_tess_tris;
 	}
 	ret = true;
 free_tess_tris:
@@ -607,7 +607,7 @@ static bool save_group(size_t idx, struct tess_ctx *ctx)
 	for (size_t i = 0; i < num_ids; ++i) {
 		ctx->chr_mesh = chr_mshes[i];
 		if (!save_mesh(ctx))
-			return false;
+			goto free_chr_mshes;
 	}
 	lib3ds_file_insert_mesh(ctx->file, lib3ds_mesh);
 	ret = true;

@@ -126,6 +126,10 @@ int slv_sprintf(char *restrict s, struct slv_err *err,
 void *slv_alloc(size_t num_elem, size_t sz, const void *init,
                 struct slv_err *err)
 {
+	if (sz && num_elem > SIZE_MAX / sz) {
+		slv_set_err(err, SLV_LIB_SLV, SLV_ERR_OVERFLOW);
+		return NULL;
+	}
 	unsigned char *buf = slv_malloc(num_elem * sz, err);
 	if (buf)
 		for (size_t i = 0; i < num_elem; ++i)

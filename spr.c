@@ -93,10 +93,7 @@ static bool load(void *me, struct slv_stream *stream)
 	if (hdr->num_animations) {
 		if (!load_animations(spr, stream))
 			return false;
-		/*
-		 * The below hack is necessary because the animation data from
-		 * SPINALL.SPR seems to be incorrect
-		 */
+		// The animation data from SPINALL.SPR seems to be incorrect
 		if (hdr->file_id == 43)
 			spr->animations[0].num_frames = 30;
 	}

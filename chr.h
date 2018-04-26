@@ -64,7 +64,7 @@ struct slv_chr_mesh {
 	unsigned long unk_0;
 	unsigned long num_vertices;
 	unsigned long num_normals;
-	unsigned long num_faces; // == num_normals
+	unsigned long num_faces; // Same as num_normals
 	long unk_1;
 	long unk_2;
 	float origin[3];

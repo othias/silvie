@@ -200,9 +200,8 @@ static bool load_chunk(struct slv_chr *chr, struct slv_stream *stream,
 		if (!load_mesh(mesh, stream))
 			return false;
 		/*
-		 * The below hack is necessary because some models have broken
-		 * mesh ids (BOOTS2.CHR, EROCK1.CHR, EROCK2.CHR, EROCK3.CHR,
-		 * Ringb.chr, RING2.CHR and VILLAGR2.CHR)
+		 * Some models have broken mesh ids (BOOTS2.CHR, EROCK1.CHR,
+		 * EROCK2.CHR, EROCK3.CHR, Ringb.chr, RING2.CHR, VILLAGR2.CHR)
 		 */
 		mesh->id = root->meshes.fst_mesh_id + mesh_idx;
 		break;

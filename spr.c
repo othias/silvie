@@ -34,19 +34,18 @@ static bool check_args(const void *me)
 	return slv_check_argc(me, 5, SLV_ERR_SPR_ARGS);
 }
 
-static bool load_animations(struct slv_spr *spr, struct slv_stream *stream)
+static bool load_anims(struct slv_spr *spr, struct slv_stream *stream)
 {
 	struct slv_spr_hdr *hdr = &spr->hdr;
-	if (!(spr->unks = slv_malloc(hdr->num_animations * sizeof spr->unks[0],
+	if (!(spr->unks = slv_malloc(hdr->num_anims * sizeof spr->unks[0],
 	                             stream->err))
-	    || !(spr->animations = slv_alloc(hdr->num_animations,
-	                                     sizeof spr->animations[0],
-	                                     &(struct slv_spr_anim) {0},
-	                                     stream->err))
-	    || !slv_read_le_arr(stream, hdr->num_animations, spr->unks))
+	    || !(spr->anims = slv_alloc(hdr->num_anims, sizeof spr->anims[0],
+	                                &(struct slv_spr_anim) {0},
+	                                stream->err))
+	    || !slv_read_le_arr(stream, hdr->num_anims, spr->unks))
 		return false;
-	for (size_t i = 0; i < hdr->num_animations; ++i) {
-		struct slv_spr_anim *anim = &spr->animations[i];
+	for (size_t i = 0; i < hdr->num_anims; ++i) {
+		struct slv_spr_anim *anim = &spr->anims[i];
 		if (!slv_read_le(stream, &anim->num_frames)
 		    || !slv_read_le(stream, &anim->delay)
 		    || !slv_read_le(stream, &anim->num_indices)
@@ -78,7 +77,7 @@ static bool load(void *me, struct slv_stream *stream)
 	                                 &(struct slv_spr_frame) {0},
 	                                 stream->err))
 	    || !slv_read_le(stream, &hdr->unk_0)
-	    || !slv_read_le(stream, &hdr->num_animations)
+	    || !slv_read_le(stream, &hdr->num_anims)
 	    || !slv_read_le(stream, &hdr->unk_1))
 		return false;
 	for (size_t i = 0; i < hdr->num_frames; ++i) {
@@ -90,12 +89,12 @@ static bool load(void *me, struct slv_stream *stream)
 		    || !slv_read_le(stream, &frame_info->top))
 			return false;
 	}
-	if (hdr->num_animations) {
-		if (!load_animations(spr, stream))
+	if (hdr->num_anims) {
+		if (!load_anims(spr, stream))
 			return false;
 		// The animation data from SPINALL.SPR seems to be incorrect
 		if (hdr->file_id == 43)
-			spr->animations[0].num_frames = 30;
+			spr->anims[0].num_frames = 30;
 	}
 	for (size_t i = 0; i < hdr->num_frames; ++i) {
 		struct slv_spr_frame *frame = &spr->frames[i];
@@ -318,8 +317,8 @@ static bool save(const void *me)
 	const struct slv_spr *spr = me;
 	const struct slv_spr_hdr *hdr = &spr->hdr;
 	char *path;
-	char *suffix;
-	if (!(path = slv_suf(&spr->asset, &suffix, sizeof "x000.gif")))
+	char *suf;
+	if (!(path = slv_suf(&spr->asset, &suf, sizeof "x000.gif")))
 		return false;
 	struct saved_frame *frames = slv_alloc(hdr->num_frames,
 	                                       sizeof frames[0],
@@ -351,16 +350,16 @@ static bool save(const void *me)
 		if (!read_frame(&spr->frames[i], &frames[i], spr->asset.err))
 			goto free_frames;
 	}
-	for (size_t i = 0; i < hdr->num_animations; ++i)
-		if (slv_sprintf(suffix, spr->asset.err, "a%.3zu.gif", i) < 0
-		    || !save_anim(&spr->animations[i], frames, spr, &opts))
+	for (size_t i = 0; i < hdr->num_anims; ++i)
+		if (slv_sprintf(suf, spr->asset.err, "a%.3zu.gif", i) < 0
+		    || !save_anim(&spr->anims[i], frames, spr, &opts))
 			goto free_frames;
 	opts.animated = false;
 	for (size_t i = 0; i < hdr->num_frames; ++i) {
 		if (frames[i].in_anim)
 			continue;
 		const struct slv_spr_frame_info *info = frames[i].info;
-		if (slv_sprintf(suffix, spr->asset.err, "f%.3zu.gif", i) < 0
+		if (slv_sprintf(suf, spr->asset.err, "f%.3zu.gif", i) < 0
 		    || !slv_ul_to_i(info->width, &opts.width, spr->asset.err)
 		    || !slv_ul_to_i(info->height, &opts.height, spr->asset.err))
 			goto free_frames;
@@ -375,7 +374,7 @@ static bool save(const void *me)
 			goto free_frames;
 		if (!frames[i].mask)
 			continue;
-		suffix[0] = 'm';
+		suf[0] = 'm';
 		struct GifColorType mask_colors[] = {
 			{0, 0, 0},
 			{0xff, 0xff, 0xff},
@@ -400,14 +399,14 @@ free_path:
 	return ret;
 }
 
-static void del_animations(const struct slv_spr *spr)
+static void del_anims(const struct slv_spr *spr)
 {
 	free(spr->unks);
-	if (!spr->animations)
+	if (!spr->anims)
 		return;
-	for (size_t i = 0; i < spr->hdr.num_animations; ++i)
-		free(spr->animations[i].indices);
-	free(spr->animations);
+	for (size_t i = 0; i < spr->hdr.num_anims; ++i)
+		free(spr->anims[i].indices);
+	free(spr->anims);
 }
 
 static void del(void *me)
@@ -415,8 +414,8 @@ static void del(void *me)
 	struct slv_spr *spr = me;
 	const struct slv_spr_hdr *hdr = &spr->hdr;
 	free(spr->frame_infos);
-	if (hdr->num_animations)
-		del_animations(spr);
+	if (hdr->num_anims)
+		del_anims(spr);
 	if (spr->frames) {
 		for (size_t i = 0; i < hdr->num_frames; ++i)
 			free(spr->frames[i].data);

@@ -35,7 +35,7 @@ struct slv_spr_hdr {
 	unsigned long format;
 	unsigned long num_frames;
 	long unk_0;
-	unsigned long num_animations;
+	unsigned long num_anims;
 	long unk_1;
 };
 
@@ -66,7 +66,7 @@ struct slv_spr {
 	struct slv_spr_hdr hdr;
 	struct slv_spr_frame_info *frame_infos;
 	long *unks;
-	struct slv_spr_anim *animations;
+	struct slv_spr_anim *anims;
 	struct slv_spr_frame *frames;
 };
 

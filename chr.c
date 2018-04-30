@@ -362,7 +362,6 @@ static void APIENTRY tess_begin_cb(GLenum type, void *user)
 		ctx->tesselate = tess_tri_fan;
 	}
 	ctx->cur_vtx = 0;
-	ctx->cur_tess_tri = 0;
 	ctx->odd_winding = false;
 }
 
@@ -452,6 +451,7 @@ static bool tesselate(const struct slv_chr_face *face, struct tess_ctx *ctx)
 	if (!(ctx->tess_tris = slv_malloc(num_tess_tris *
 	                                  sizeof ctx->tess_tris[0], ctx->err)))
 		goto free_vertices;
+	ctx->cur_tess_tri = 0;
 	gluTessBeginPolygon(ctx->tess, ctx);
 	gluTessBeginContour(ctx->tess);
 	for (size_t i = 0; i < face->num_vertices; ++i) {

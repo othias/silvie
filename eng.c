@@ -74,13 +74,11 @@ static bool load_topic(struct slv_eng_topic *topic, struct slv_stream *stream)
 
 static bool load_reply(struct slv_eng_reply *reply, struct slv_stream *stream)
 {
-	if (!(reply->name = slv_read_str(stream))
-	    || !(reply->character = slv_read_str(stream))
-	    || !(reply->color = slv_read_str(stream))
-	    || !(reply->anim = slv_read_str(stream))
-	    || !(reply->text = slv_read_str(stream)))
-		return false;
-	return true;
+	return (reply->name = slv_read_str(stream))
+	       && (reply->character = slv_read_str(stream))
+	       && (reply->color = slv_read_str(stream))
+	       && (reply->anim = slv_read_str(stream))
+	       && (reply->text = slv_read_str(stream));
 }
 
 static void unxor(size_t pos, void *buf, size_t sz)
@@ -154,9 +152,7 @@ static bool save_reply(const struct slv_eng_reply *reply, FILE *xml,
 			return false;
 		text = ch + 1;
 	}
-	if (slv_fprintf(xml, err, "%s</reply>\n", text) < 0)
-		return false;
-	return true;
+	return slv_fprintf(xml, err, "%s</reply>\n", text) >= 0;
 }
 
 static bool save_topic(const struct slv_eng_topic *topic,
@@ -178,9 +174,7 @@ static bool save_topic(const struct slv_eng_topic *topic,
 		                    topic->reply_names[i]) < 0)
 			return false;
 	}
-	if (slv_fputs("\t</topic>\n", xml, eng->asset.err) < 0)
-		return false;
-	return true;
+	return slv_fputs("\t</topic>\n", xml, eng->asset.err) >= 0;
 }
 
 static bool save_event(const struct slv_eng_event *event,
@@ -205,17 +199,14 @@ static bool save_event(const struct slv_eng_event *event,
 		if (!save_topic(t, eng, xml))
 			return false;
 	}
-	if (slv_fputs("</event>\n", xml, eng->asset.err) < 0)
-		return false;
-	return true;
+	return slv_fputs("</event>\n", xml, eng->asset.err) >= 0;
 }
 
 static bool save(const void *me)
 {
 	const struct slv_eng *eng = me;
 	const struct slv_eng_hdr *hdr = &eng->hdr;
-	FILE *xml = slv_fopen(eng->asset.argv[eng->asset.out_idx], "w",
-	                      eng->asset.err);
+	FILE *xml = slv_fopen(eng->asset.out, "w", eng->asset.err);
 	if (!xml)
 		return false;
 	bool ret = false;
@@ -291,7 +282,7 @@ struct slv_asset *slv_new_eng(int argc, char **argv, struct slv_err *err)
 			.ops = &ops,
 			.argc = argc,
 			.argv = argv,
-			.out_idx = 3,
+			.out = argv[3],
 			.err = err,
 		},
 	}, err);

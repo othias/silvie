@@ -19,8 +19,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "error.h"
 #include "asset.h"
+#include "error.h"
 #include "utils.h"
 
 bool slv_check_argc(const struct slv_asset *asset, int argc, int err_code)
@@ -34,12 +34,11 @@ bool slv_check_argc(const struct slv_asset *asset, int argc, int err_code)
 
 char *slv_suf(const struct slv_asset *asset, char **suf, size_t suf_sz)
 {
-	const char *out = asset->argv[asset->out_idx];
-	size_t out_len = strlen(out);
+	size_t out_len = strlen(asset->out);
 	char *path = slv_malloc(out_len + suf_sz, asset->err);
 	if (!path)
 		return NULL;
-	strcpy(path, out);
+	strcpy(path, asset->out);
 	*suf = &path[out_len];
 	return path;
 }

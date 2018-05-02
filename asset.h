@@ -34,7 +34,7 @@ struct slv_asset {
 	} *ops;
 	int argc;
 	char **argv;
-	size_t out_idx;
+	const char *out;
 	struct slv_err *err;
 };
 

@@ -438,7 +438,7 @@ struct slv_asset *slv_new_spr(int argc, char **argv, struct slv_err *err)
 			.ops = &ops,
 			.argc = argc,
 			.argv = argv,
-			.out_idx = 4,
+			.out = argv[4],
 			.err = err,
 		},
 	}, err);

@@ -131,27 +131,23 @@ static bool load_nodes(struct slv_chr_nodes *nodes, struct slv_stream *stream)
 	return true;
 }
 
-static bool load_mesh_group(struct slv_chr_mesh_group *group,
+static bool load_mesh_group(struct slv_chr_mesh_group *grp,
                             struct slv_stream *stream)
 {
-	if (!slv_read_le(stream, &group->type))
+	if (!slv_read_le(stream, &grp->type))
 		return false;
-	switch (group->type) {
+	switch (grp->type) {
 	case SLV_CHR_GROUP_TYPE_NONE:
 		return true;
 	case SLV_CHR_GROUP_TYPE_SNGL:
-		if (!slv_read_le(stream, &group->mesh_id))
-			return false;
-		return true;
+		return slv_read_le(stream, &grp->mesh_id);
 	case SLV_CHR_GROUP_TYPE_LIST:
-		if (!slv_read_le(stream, &group->num_mesh_ids)
-		    || !(group->mesh_ids = slv_malloc(group->num_mesh_ids *
-		                                      sizeof group->mesh_ids[0],
+		return slv_read_le(stream, &grp->num_mesh_ids)
+		       && (grp->mesh_ids = slv_malloc(grp->num_mesh_ids *
+		                                      sizeof grp->mesh_ids[0],
 		                                      stream->err))
-		    || !slv_read_le_arr(stream, group->num_mesh_ids,
-		                        group->mesh_ids))
-			return false;
-		return true;
+		       && slv_read_le_arr(stream, grp->num_mesh_ids,
+		                          grp->mesh_ids);
 	}
 	slv_set_err(stream->err, SLV_LIB_SLV, SLV_ERR_CHR_GROUP_TYPE);
 	return false;
@@ -763,7 +759,7 @@ struct slv_asset *slv_new_chr(int argc, char **argv, struct slv_err *err)
 			.ops = &ops,
 			.argc = argc,
 			.argv = argv,
-			.out_idx = 4,
+			.out = argv[4],
 			.err = err,
 		},
 	}, err);

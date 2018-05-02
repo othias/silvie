@@ -36,22 +36,20 @@ static bool load(void *me, struct slv_stream *stream)
 {
 	struct slv_raw *raw = me;
 	struct slv_raw_hdr *hdr = &raw->hdr;
-	if (!slv_read_le(stream, &hdr->cst_0)
-	    || !slv_read_le(stream, &hdr->width_0)
-	    || !slv_read_le(stream, &hdr->height)
-	    || !slv_read_le(stream, &hdr->cst_1)
-	    || !slv_read_le(stream, &hdr->buf_sz)
-	    || !(raw->buf = slv_malloc(hdr->buf_sz, stream->err))
-	    || !slv_read_le(stream, &hdr->width_1)
-	    || !slv_read_le(stream, &hdr->unk_0)
-	    || !slv_read_le(stream, &hdr->unk_1)
-	    || !slv_read_le(stream, &hdr->unk_2)
-	    || !slv_read_le(stream, &hdr->unk_3)
-	    || !slv_read_le(stream, &hdr->unk_4)
-	    || !slv_read_buf(stream, raw->colors, sizeof raw->colors)
-	    || !slv_read_buf(stream, raw->buf, hdr->buf_sz))
-		return false;
-	return true;
+	return slv_read_le(stream, &hdr->cst_0)
+	       && slv_read_le(stream, &hdr->width_0)
+	       && slv_read_le(stream, &hdr->height)
+	       && slv_read_le(stream, &hdr->cst_1)
+	       && slv_read_le(stream, &hdr->buf_sz)
+	       && (raw->buf = slv_malloc(hdr->buf_sz, stream->err))
+	       && slv_read_le(stream, &hdr->width_1)
+	       && slv_read_le(stream, &hdr->unk_0)
+	       && slv_read_le(stream, &hdr->unk_1)
+	       && slv_read_le(stream, &hdr->unk_2)
+	       && slv_read_le(stream, &hdr->unk_3)
+	       && slv_read_le(stream, &hdr->unk_4)
+	       && slv_read_buf(stream, raw->colors, sizeof raw->colors)
+	       && slv_read_buf(stream, raw->buf, hdr->buf_sz);
 }
 
 static bool save(const void *me)
@@ -71,7 +69,7 @@ static bool save(const void *me)
 	    || !slv_ul_to_i(hdr->height, &height, raw->asset.err))
 		return false;
 	struct GifFileType *gif = slv_open_gif(&(struct slv_gif_opts) {
-		.file_path = raw->asset.argv[raw->asset.out_idx],
+		.file_path = raw->asset.out,
 		.num_colors = SLV_NUM_RAW_COLORS,
 		.colors = colors,
 		.width = width,
@@ -113,7 +111,7 @@ struct slv_asset *slv_new_raw(int argc, char **argv, struct slv_err *err)
 			.ops = &ops,
 			.argc = argc,
 			.argv = argv,
-			.out_idx = 3,
+			.out = argv[3],
 			.err = err,
 		},
 	}, err);

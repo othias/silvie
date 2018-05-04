@@ -529,6 +529,16 @@ free_node:
 	return NULL;
 }
 
+static struct slv_chr_mesh *get_mesh(unsigned long id,
+                                     const struct slv_chr_meshes *meshes)
+{
+	size_t idx;
+	if (id >= meshes->fst_mesh_id
+	    && (idx = id - meshes->fst_mesh_id) < meshes->num_meshes)
+		return &meshes->meshes[idx];
+	return NULL;
+}
+
 static unsigned get_num_tris(const struct slv_chr_mesh *mesh)
 {
 	unsigned num_tris = 0;
@@ -566,29 +576,19 @@ static bool save_group(size_t idx, struct tess_ctx *ctx)
 	struct Lib3dsNode *node = save_node(idx, ctx);
 	if (!node)
 		return false;
-	const struct slv_chr_mesh **chr_mshes = slv_malloc(num_ids *
-	                                                   sizeof chr_mshes[0],
-	                                                   ctx->err);
-	if (!chr_mshes)
-		return false;
 	unsigned num_tris = 0;
-	bool ret = false;
 	for (size_t i = 0; i < num_ids; ++i) {
-		const struct slv_chr_mesh *m = SLV_FIND(slv_chr_mesh, id,
-		                                        root->meshes.meshes,
-		                                        root->meshes.num_meshes,
-		                                        &ids[i], memcmp);
+		const struct slv_chr_mesh *m = get_mesh(ids[i], &root->meshes);
 		if (!m) {
 			slv_set_err(ctx->err, SLV_LIB_SLV, SLV_ERR_CHR_MESH_ID);
-			goto free_chr_mshes;
+			return false;
 		}
-		chr_mshes[i] = m;
 		num_tris += get_num_tris(m);
 	}
 	struct Lib3dsMesh *lib3ds_mesh = lib3ds_mesh_new(node->name);
 	if (!lib3ds_mesh) {
 		slv_set_errno(ctx->err);
-		goto free_chr_mshes;
+		return false;
 	}
 	unsigned num_vertices = 3 * num_tris;
 	if (!lib3ds_mesh_new_point_list(lib3ds_mesh, num_vertices)
@@ -596,20 +596,17 @@ static bool save_group(size_t idx, struct tess_ctx *ctx)
 	    || !lib3ds_mesh_new_face_list(lib3ds_mesh, num_tris)) {
 		slv_set_errno(ctx->err);
 		lib3ds_mesh_free(lib3ds_mesh);
-		goto free_chr_mshes;
+		return false;
 	}
 	ctx->num_tris = 0;
 	ctx->lib3ds_mesh = lib3ds_mesh;
 	for (size_t i = 0; i < num_ids; ++i) {
-		ctx->chr_mesh = chr_mshes[i];
+		ctx->chr_mesh = get_mesh(ids[i], &root->meshes);
 		if (!save_mesh(ctx))
-			goto free_chr_mshes;
+			return false;
 	}
 	lib3ds_file_insert_mesh(ctx->file, lib3ds_mesh);
-	ret = true;
-free_chr_mshes:
-	free(chr_mshes);
-	return ret;
+	return true;
 }
 
 static bool save(const void *me)

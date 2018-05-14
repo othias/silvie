@@ -168,19 +168,19 @@ bool slv_read_f32(struct slv_stream *stream, float *f)
 	unsigned long sig_ul = (unsigned long)(buf[2] & 0x7f) << 2 * CHAR_BIT
 	                       | (unsigned long)buf[1] << CHAR_BIT
 	                       | (unsigned long)buf[0];
-	double significand = sig_ul / 8388608.0;
+	double sig = sig_ul / 8388608.0;
 	if (!exponent)
 		if (!sig_ul)
 			*f = sign * .0f;
 		else
-			*f = (float)(sign * ldexp(significand, -126));
+			*f = (float)(sign * ldexp(sig, -126));
 	else if (exponent == 0xff)
 		if (!sig_ul)
 			*f = sign * INFINITY;
 		else
 			*f = NAN;
 	else
-		*f = (float)(sign * ldexp(significand + 1.0, exponent - 127));
+		*f = (float)(sign * ldexp(sig + 1.0, exponent - 127));
 	return true;
 }
 

@@ -50,10 +50,10 @@ del_asset:
 }
 
 #define FORMATS \
-	X(chr, "3D model, saves as a 3DS file and a GIF file")  \
-	X(eng, "Dialog text, saves as an XML file")             \
-	X(raw, "Raw image, saves as a GIF file")                \
-	X(spr, "Spritesheet, saves as GIF files")
+	X(chr, "3D model, saved as a 3DS file and a GIF file")  \
+	X(eng, "Dialog text, saved as an XML file")             \
+	X(raw, "Raw image, saved as a GIF file")                \
+	X(spr, "Spritesheet, saved as GIF files")
 
 int main(int argc, char *argv[])
 {
@@ -64,7 +64,9 @@ int main(int argc, char *argv[])
 		     FORMATS
 #undef X
 		     "\nFor usage information on a given format, type:\n\n"
-		     "\tsilvie format");
+		     "\tsilvie format\n\n"
+		     "A prefix argument denotes the fixed part of the path to "
+		     "the saved files.");
 		return EXIT_FAILURE;
 	}
 	puts("Silvie v0.1\n"

@@ -7,14 +7,16 @@ $ silvie
 This is Silvie, an asset extractor for Silver.
 The following formats are supported:
 
-        chr     3D model, saves as a 3DS file and a GIF file
-        eng     Dialog text, saves as an XML file
-        raw     Raw image, saves as a GIF file
-        spr     Spritesheet, saves as GIF files
+        chr     3D model, saved as a 3DS file and a GIF file
+        eng     Dialog text, saved as an XML file
+        raw     Raw image, saved as a GIF file
+        spr     Spritesheet, saved as GIF files
 
 For usage information on a given format, type:
 
         silvie format
+
+A prefix argument denotes the fixed part of the path to the saved files.
 ````
 
 

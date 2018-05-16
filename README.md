@@ -1,6 +1,6 @@
 # Silvie
 
-Silvie is an asset extractor for Silver, an action RPG from 1999 developed by Spiral House.
+Silvie is an asset extractor for [Silver](https://en.wikipedia.org/wiki/Silver_(video_game)), an action RPG from 1999 developed by Spiral House.
 
 ````
 $ silvie
@@ -22,9 +22,9 @@ A prefix argument denotes the fixed part of the path to the saved files.
 
 ## Dependencies
 
-* libgif >= 5.0 for saving GIF files
-* lib3ds for saving 3DS files
-* libglu for polygon triangulation
+* [libgif](http://giflib.sourceforge.net) ≥ 5.0 for saving GIF files
+* [lib3ds](https://code.google.com/archive/p/lib3ds) for saving 3DS files
+* [libglu](https://cgit.freedesktop.org/mesa/glu) for polygon triangulation
 
 You should be able to install the required dependencies on a debian-like distribution using apt-get:
 

@@ -133,6 +133,15 @@ static bool load(void *me, struct slv_stream *stream)
 	return true;
 }
 
+static struct slv_eng_reply *get_reply(const struct slv_eng *eng,
+                                       const char *name)
+{
+	for (size_t i = 0; i < eng->hdr.num_replies; ++i)
+		if (!strcmp(eng->replies[i].name, name))
+			return &eng->replies[i];
+	return NULL;
+}
+
 static bool save_reply(const struct slv_eng_reply *reply, FILE *xml,
                        struct slv_err *err)
 {
@@ -155,23 +164,28 @@ static bool save_reply(const struct slv_eng_reply *reply, FILE *xml,
 	return slv_fprintf(xml, err, "%s</reply>\n", text) >= 0;
 }
 
+static struct slv_eng_topic *get_topic(const struct slv_eng *eng,
+                                       const char *name)
+{
+	for (size_t i = 0; i < eng->hdr.num_topics; ++i)
+		if (!strcmp(eng->topics[i].name, name))
+			return &eng->topics[i];
+	return NULL;
+}
+
 static bool save_topic(const struct slv_eng_topic *topic,
 		       const struct slv_eng *eng, FILE *xml)
 {
-	const struct slv_eng_hdr *hdr = &eng->hdr;
 	if (slv_fprintf(xml, eng->asset.err, "\t<topic name=\"%s\">\n",
 			topic->name) < 0)
 		return false;
 	for (size_t i = 0; i < topic->num_reply_names; ++i) {
-		const struct slv_eng_reply *r = SLV_FIND(slv_eng_reply, name,
-		                                         eng->replies,
-		                                         hdr->num_replies,
-		                                         topic->reply_names[i],
-		                                         slv_fnd_strcmp);
-		if (r ? !save_reply(r, xml, eng->asset.err)
-		      : slv_fprintf(xml, eng->asset.err,
-		                    "\t\t<action name=\"%s\"/>\n",
-		                    topic->reply_names[i]) < 0)
+		const char *name = topic->reply_names[i];
+		const struct slv_eng_reply *reply = get_reply(eng, name);
+		if (reply ? !save_reply(reply, xml, eng->asset.err)
+		          : slv_fprintf(xml, eng->asset.err,
+		                        "\t\t<action name=\"%s\"/>\n",
+		                        topic->reply_names[i]) < 0)
 			return false;
 	}
 	return slv_fputs("\t</topic>\n", xml, eng->asset.err) >= 0;
@@ -180,23 +194,19 @@ static bool save_topic(const struct slv_eng_topic *topic,
 static bool save_event(const struct slv_eng_event *event,
                        const struct slv_eng *eng, FILE *xml)
 {
-	const struct slv_eng_hdr *hdr = &eng->hdr;
 	if (slv_fprintf(xml, eng->asset.err,
 	                "<event name=\"%s\" trigger=\"%s\">\n", event->name,
 	                event->trigger) < 0)
 		return false;
 	for (size_t i = 0; i < event->num_topic_names; ++i) {
-		const struct slv_eng_topic *t = SLV_FIND(slv_eng_topic, name,
-		                                         eng->topics,
-		                                         hdr->num_topics,
-		                                         event->topic_names[i],
-		                                         slv_fnd_strcmp);
-		if (!t) {
+		const char *name = event->topic_names[i];
+		const struct slv_eng_topic *topic = get_topic(eng, name);
+		if (!topic) {
 			slv_set_err(eng->asset.err, SLV_LIB_SLV,
 			            SLV_ERR_ENG_TOPIC);
 			return false;
 		}
-		if (!save_topic(t, eng, xml))
+		if (!save_topic(topic, eng, xml))
 			return false;
 	}
 	return slv_fputs("</event>\n", xml, eng->asset.err) >= 0;

@@ -26,27 +26,6 @@
 #include "error.h"
 #include "utils.h"
 
-int slv_fnd_strcmp(const void *field_val, const void *val, size_t field_sz)
-{
-	(void)field_sz;
-	const char *const *str = field_val;
-	return strcmp(*str, val);
-}
-
-const void *slv_find(const void *arr, size_t num_structs, size_t struct_sz,
-                     const void *val, size_t field_off, size_t field_sz,
-                     slv_comparer compare)
-{
-	for (size_t i = 0; i < num_structs * struct_sz; i += struct_sz) {
-		const unsigned char *arr_bytes = arr;
-		const void *field_val = &arr_bytes[i + field_off];
-		const void *structure = &arr_bytes[i];
-		if (!compare(field_val, val, field_sz))
-			return structure;
-	}
-	return NULL;
-}
-
 void *slv_malloc(size_t size, struct slv_err *err)
 {
 	void *buf = malloc(size);

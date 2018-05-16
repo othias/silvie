@@ -25,22 +25,10 @@
 
 #define SLV_LEN(arr) (sizeof (arr) / sizeof (arr)[0])
 #define SLV_FST(arg, ...) (arg)
-#define SLV_CALL(op, ...) (SLV_FST(__VA_ARGS__, foo)->ops->op(__VA_ARGS__))
+#define SLV_CALL(op, ...) (SLV_FST(__VA_ARGS__, ignore)->ops->op(__VA_ARGS__))
 #define SLV_DEL(object) SLV_CALL(del, (object))
 
 struct slv_err;
-
-typedef int slv_comparer(const void *, const void *, size_t);
-
-int slv_fnd_strcmp(const void *field_val, const void *val, size_t field_sz);
-const void *slv_find(const void *arr, size_t num_structs, size_t struct_sz,
-                     const void *val, size_t field_off, size_t field_sz,
-                     slv_comparer compare);
-
-#define SLV_FIND(tag, field, arr, len, val, comparer) \
-	slv_find((arr), (len), sizeof (struct tag), (val),      \
-	         offsetof(struct tag, field),                   \
-	         sizeof (struct tag) {0}.field, (comparer))
 
 void *slv_malloc(size_t size, struct slv_err *err);
 void *slv_realloc(void *ptr, size_t size, struct slv_err *err);

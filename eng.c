@@ -95,7 +95,7 @@ static bool load(void *me, struct slv_stream *stream)
 {
 	struct slv_eng *eng = me;
 	struct slv_eng_hdr *hdr = &eng->hdr;
-	stream->cb = unxor;
+	stream->callback = unxor;
 	if (!slv_read_le(stream, &hdr->file_sz)
 	    || !slv_read_le(stream, &hdr->num_events)
 	    || !(eng->events = slv_alloc(hdr->num_events,

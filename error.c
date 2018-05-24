@@ -39,7 +39,7 @@ void slv_set_errno(struct slv_err *err)
 
 static const char *const err_msgs[] = {
 #define X(name, msg) msg,
-	SLV_ERRS
+	SLV_ERRS(X)
 #undef X
 };
 

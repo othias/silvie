@@ -16,7 +16,7 @@ For usage information on a given format, type:
 
         silvie format
 
-A prefix argument denotes the fixed part of the path to the saved files.
+A prefix argument denotes the common part of the paths to the saved files.
 ````
 
 

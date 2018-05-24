@@ -30,7 +30,7 @@ struct slv_stream {
 		void (*del)(void *);
 	} *ops;
 	size_t pos;
-	void (*cb)(size_t, void *, size_t);
+	void (*callback)(size_t, void *, size_t);
 	struct slv_err *err;
 };
 

@@ -21,7 +21,7 @@
 
 #include <GL/gl.h>
 
-#define SLV_ERRS \
+#define SLV_ERRS(X) \
 	X(SLV_ERR_NONE, "No error")                                     \
 	X(SLV_ERR_UNK, "Unknown error")                                 \
 	X(SLV_ERR_CHR_ARGS, "Expected arguments:\n\n"                   \
@@ -53,8 +53,8 @@ enum slv_lib {
 };
 
 enum slv_err_code {
-#define X(name, msg) name,
-	SLV_ERRS
+#define SLV_X(name, msg) name,
+	SLV_ERRS(SLV_X)
 #undef X
 };
 

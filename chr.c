@@ -343,7 +343,7 @@ static void tess_tri_fan(size_t idx, struct tess_ctx *ctx)
 	ctx->prev_vtx_indices[1] = idx;
 }
 
-static void APIENTRY tess_begin_cb(GLenum type, void *user)
+static void APIENTRY tess_begin(GLenum type, void *user)
 {
 	struct tess_ctx *ctx = user;
 	switch (type)
@@ -366,7 +366,7 @@ struct tess_vtx {
 	size_t idx;
 };
 
-static void APIENTRY tess_vtx_cb(void *data, void *user)
+static void APIENTRY tess_vtx(void *data, void *user)
 {
 	struct tess_ctx *ctx = user;
 	const struct tess_vtx *vtx = data;
@@ -376,7 +376,7 @@ static void APIENTRY tess_vtx_cb(void *data, void *user)
 		ctx->prev_vtx_indices[ctx->cur_vtx++] = vtx->idx;
 }
 
-static void APIENTRY tess_err_cb(GLenum code, void *user)
+static void APIENTRY tess_err(GLenum code, void *user)
 {
 	struct tess_ctx *ctx = user;
 	ctx->err->lib = SLV_LIB_GLU;
@@ -384,8 +384,8 @@ static void APIENTRY tess_err_cb(GLenum code, void *user)
 	ctx->has_err = true;
 }
 
-static double find_v(unsigned idx, unsigned long off,
-                     const struct slv_chr_tex *tex)
+static double get_v(unsigned idx, unsigned long off,
+                    const struct slv_chr_tex *tex)
 {
 	unsigned long width = tex->width_0;
 	double v = .0;
@@ -416,8 +416,8 @@ static bool save_tri(const struct slv_chr_face *chr_face, struct tess_ctx *ctx)
 		if (chr_face->flags & SLV_CHR_FLAG_COLOR_IDX) {
 			const unsigned long *o = ctx->root->mat_offsets.offsets;
 			u = 1.0;
-			v = find_v(vtx->color_idx, o[chr_face->mat_off_idx],
-			           &ctx->root->tex);
+			v = get_v(vtx->color_idx, o[chr_face->mat_off_idx],
+			          &ctx->root->tex);
 		}
 		else {
 			u = vtx->texel_u;
@@ -428,7 +428,7 @@ static bool save_tri(const struct slv_chr_face *chr_face, struct tess_ctx *ctx)
 		texel[0] = (float)(u / tex->width_0);
 		texel[1] = (float)(1 - v / tex->height);
 	}
-	if (slv_sprintf(lib3ds_face->material, ctx->err, "mat%hhu",
+	if (slv_sprintf(lib3ds_face->material, ctx->err, "%hhu",
 	                chr_face->mat_off_idx) < 0)
 		return false;
 	++ctx->num_tris;
@@ -654,7 +654,7 @@ static bool save(const void *me)
 			slv_set_errno(chr->asset.err);
 			goto free_file;
 		}
-		if (slv_sprintf(mat->name, chr->asset.err, "mat%zu", i) < 0) {
+		if (slv_sprintf(mat->name, chr->asset.err, "%zu", i) < 0) {
 			lib3ds_material_free(mat);
 			goto free_file;
 		}
@@ -673,9 +673,9 @@ static bool save(const void *me)
 		slv_set_errno(chr->asset.err);
 		goto free_file;
 	}
-	gluTessCallback(tess, GLU_TESS_BEGIN_DATA, tess_begin_cb);
-	gluTessCallback(tess, GLU_TESS_VERTEX_DATA, tess_vtx_cb);
-	gluTessCallback(tess, GLU_TESS_ERROR_DATA, tess_err_cb);
+	gluTessCallback(tess, GLU_TESS_BEGIN_DATA, tess_begin);
+	gluTessCallback(tess, GLU_TESS_VERTEX_DATA, tess_vtx);
+	gluTessCallback(tess, GLU_TESS_ERROR_DATA, tess_err);
 	gluTessCallback(tess, GLU_TESS_END, glEnd);
 	gluTessProperty(tess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
 	gluTessProperty(tess, GLU_TESS_BOUNDARY_ONLY, GLU_FALSE);

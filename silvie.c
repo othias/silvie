@@ -49,7 +49,7 @@ del_asset:
 	return ret;
 }
 
-#define FORMATS \
+#define FORMATS(X) \
 	X(chr, "3D model, saved as a 3DS file and a GIF file")  \
 	X(eng, "Dialog text, saved as an XML file")             \
 	X(raw, "Raw image, saved as a GIF file")                \
@@ -61,12 +61,12 @@ int main(int argc, char *argv[])
 		puts("This is Silvie, an asset extractor for Silver.\n"
 		     "The following formats are supported:\n\n"
 #define X(fmt, desc) "\t" #fmt "\t" desc "\n"
-		     FORMATS
+		     FORMATS(X)
 #undef X
 		     "\nFor usage information on a given format, type:\n\n"
 		     "\tsilvie format\n\n"
-		     "A prefix argument denotes the fixed part of the path to "
-		     "the saved files.");
+		     "A prefix argument denotes the common part of the paths "
+		     "to the saved files.");
 		return EXIT_FAILURE;
 	}
 	puts("Silvie v0.1\n"
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	     "see the LICENSE file for copying conditions.\n");
 	const char *formats[] = {
 #define X(fmt, desc) #fmt,
-		FORMATS
+		FORMATS(X)
 #undef X
 	};
 	for (size_t i = 0; i < SLV_LEN(formats); ++i) {
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 			continue;
 		slv_asset_ctor *new_asset = (slv_asset_ctor *[]) {
 #define X(fmt, desc) slv_new_##fmt,
-			FORMATS
+			FORMATS(X)
 #undef X
 		}[i];
 		struct slv_err err = {0};

@@ -43,8 +43,8 @@ static bool fs_read(void *me, void *buf, size_t sz)
 	struct fs *fs = me;
 	if (slv_fread(buf, sz, 1, fs->file, fs->stream.err) != 1)
 		return false;
-	if (fs->stream.cb)
-		fs->stream.cb(fs->stream.pos, buf, sz);
+	if (fs->stream.callback)
+		fs->stream.callback(fs->stream.pos, buf, sz);
 	fs->stream.pos += sz;
 	return true;
 }
@@ -70,7 +70,7 @@ struct slv_stream *slv_new_fs(const char *path, struct slv_err *err)
 		goto free_fs;
 	fs->stream.ops = &fs_ops;
 	fs->stream.pos = 0;
-	fs->stream.cb = NULL;
+	fs->stream.callback = NULL;
 	fs->stream.err = err;
 	return &fs->stream;
 free_fs:
@@ -92,8 +92,8 @@ static bool ms_read(void *me, void *buf, size_t sz)
 		return false;
 	}
 	memcpy(buf, &ms->buf[ms->stream.pos], sz);
-	if (ms->stream.cb)
-		ms->stream.cb(ms->stream.pos, buf, sz);
+	if (ms->stream.callback)
+		ms->stream.callback(ms->stream.pos, buf, sz);
 	ms->stream.pos += sz;
 	return true;
 }
@@ -111,7 +111,7 @@ struct slv_stream *slv_new_ms(const unsigned char *buf, size_t sz,
 		return NULL;
 	ms->stream.ops = &ms_ops;
 	ms->stream.pos = 0;
-	ms->stream.cb = NULL;
+	ms->stream.callback = NULL;
 	ms->stream.err = err;
 	ms->buf = buf;
 	ms->sz = sz;

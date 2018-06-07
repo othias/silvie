@@ -411,11 +411,10 @@ static bool save_tri(const struct slv_chr_face *chr_face, struct tess_ctx *ctx)
 		       sizeof lib3ds_mesh->pointL[0].pos);
 		if (!slv_sz_to_us(idx, &lib3ds_face->points[i], ctx->err))
 			return false;
-		double u;
+		double u = .0;
 		double v;
 		if (chr_face->flags & SLV_CHR_FLAG_COLOR_IDX) {
 			const unsigned long *o = ctx->root->mat_offsets.offsets;
-			u = 1.0;
 			v = get_v(vtx->color_idx, o[chr_face->mat_off_idx],
 			          &ctx->root->tex);
 		}

@@ -21,6 +21,7 @@
 #include <GL/glu.h>
 #include <stddef.h>
 #include <string.h>
+#include "dernc.h"
 #include "error.h"
 
 void slv_set_err(struct slv_err *err, enum slv_lib lib, int code)
@@ -54,6 +55,8 @@ const char *slv_err_msg(const struct slv_err *err)
 		return GifErrorString(err->code);
 	case SLV_LIB_GLU:
 		return (const char *)gluErrorString(err->glu_code);
+	case SLV_LIB_RNC:
+		return rnc_error(err->rnc_code);
 	}
 	return NULL;
 }

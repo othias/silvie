@@ -25,6 +25,7 @@
 #include "chr.h"
 #include "eng.h"
 #include "error.h"
+#include "pak.h"
 #include "raw.h"
 #include "spr.h"
 #include "stream.h"
@@ -50,9 +51,10 @@ del_asset:
 }
 
 #define FORMATS(X) \
-	X(chr, "3D model, saved as a 3DS file and a GIF file")  \
-	X(eng, "Dialog text, saved as an XML file")             \
-	X(raw, "Raw image, saved as a GIF file")                \
+	X(chr, "3D model, saved as a 3DS file and a GIF file")          \
+	X(eng, "Dialog text, saved as an XML file")                     \
+	X(pak, "Level archive, saved as a GIF file (incomplete)")       \
+	X(raw, "Raw image, saved as a GIF file")                        \
 	X(spr, "Spritesheet, saved as GIF files")
 
 int main(int argc, char *argv[])

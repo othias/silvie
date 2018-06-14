@@ -33,6 +33,7 @@
 	X(SLV_ERR_CHR_MESH_ID, "Unknown mesh id")                       \
 	X(SLV_ERR_ENG_ARGS, EXP "silvie eng eng_file xml_file")         \
 	X(SLV_ERR_ENG_TOPIC, "Missing element in topic array")          \
+	X(SLV_ERR_PAK_ARGS, EXP "silvie pak pak_file prefix")           \
 	X(SLV_ERR_RAW_ARGS, EXP "silvie raw raw_file gif_file")         \
 	X(SLV_ERR_SPR_ARGS, EXP "silvie spr spr_file pal_file prefix")  \
 	X(SLV_ERR_SPR_FRAME, "Frame size mismatch")                     \
@@ -48,6 +49,7 @@ enum slv_lib {
 	SLV_LIB_STD,
 	SLV_LIB_GIF,
 	SLV_LIB_GLU,
+	SLV_LIB_RNC,
 };
 
 enum slv_err_code {
@@ -61,6 +63,7 @@ struct slv_err {
 	union {
 		int code;
 		GLenum glu_code;
+		long rnc_code;
 	};
 };
 

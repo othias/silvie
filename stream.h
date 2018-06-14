@@ -35,8 +35,7 @@ struct slv_stream {
 };
 
 struct slv_stream *slv_new_fs(const char *path, struct slv_err *err);
-struct slv_stream *slv_new_ms(const unsigned char *buf, size_t sz,
-                              struct slv_err *err);
+struct slv_stream *slv_new_ms(const void *buf, size_t sz, struct slv_err *err);
 bool slv_read_u32(struct slv_stream *stream, unsigned long *ul);
 bool slv_read_s32(struct slv_stream *stream, long *l);
 bool slv_read_u16(struct slv_stream *stream, unsigned *u);

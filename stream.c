@@ -103,8 +103,7 @@ static const struct slv_stream_ops ms_ops = {
 	.del = free,
 };
 
-struct slv_stream *slv_new_ms(const unsigned char *buf, size_t sz,
-                              struct slv_err *err)
+struct slv_stream *slv_new_ms(const void *buf, size_t sz, struct slv_err *err)
 {
 	struct ms *ms = slv_malloc(sizeof *ms, err);
 	if (!ms)

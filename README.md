@@ -9,6 +9,7 @@ The following formats are supported:
 
         chr     3D model, saved as a 3DS file and a GIF file
         eng     Dialog text, saved as an XML file
+        pak     Level archive, saved as a GIF file (incomplete)
         raw     Raw image, saved as a GIF file
         spr     Spritesheet, saved as GIF files
 
@@ -26,7 +27,7 @@ A prefix argument denotes the common part of the paths to the saved files.
 * [lib3ds](https://code.google.com/archive/p/lib3ds) for saving 3DS files
 * [libglu](https://cgit.freedesktop.org/mesa/glu) for polygon triangulation
 
-You should be able to install the required dependencies on a debian-like distribution using apt-get:
+The decompression of PAK files is handled by Jon Skeet's [dernc module](http://www.yoda.arachsys.com/dk/utils.html) which is included in Silvie. You should be able to install the required dependencies on a debian-like distribution using apt-get:
 
 ````
 $ apt-get install libgif-dev lib3ds-dev libglu1-mesa-dev

@@ -54,8 +54,8 @@ static bool load(void *me, struct slv_stream *stream)
 		goto free_packed;
 	if (!slv_read_buf(hdr_stream, &hdr.magic[0], sizeof hdr.magic)
 	    || !slv_read_buf(hdr_stream, &hdr.method, 1)
-	    || !slv_read_le(hdr_stream, &hdr.unpacked_sz)
-	    || !slv_read_le(hdr_stream, &hdr.packed_sz))
+	    || !slv_read_be(hdr_stream, &hdr.unpacked_sz)
+	    || !slv_read_be(hdr_stream, &hdr.packed_sz))
 		goto del_hdr_stream;
 	unsigned char *tmp;
 	size_t pak_size = sizeof hdr + hdr.packed_sz;

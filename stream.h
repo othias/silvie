@@ -36,33 +36,40 @@ struct slv_stream {
 
 struct slv_stream *slv_new_fs(const char *path, struct slv_err *err);
 struct slv_stream *slv_new_ms(const void *buf, size_t sz, struct slv_err *err);
-bool slv_read_u32(struct slv_stream *stream, unsigned long *ul);
-bool slv_read_s32(struct slv_stream *stream, long *l);
-bool slv_read_u16(struct slv_stream *stream, unsigned *u);
-bool slv_read_s16(struct slv_stream *stream, int *i);
-bool slv_read_f32(struct slv_stream *stream, float *f);
+bool slv_read_le_u32(struct slv_stream *stream, unsigned long *ul);
+bool slv_read_le_s32(struct slv_stream *stream, long *l);
+bool slv_read_le_u16(struct slv_stream *stream, unsigned *u);
+bool slv_read_le_s16(struct slv_stream *stream, int *i);
+bool slv_read_le_f32(struct slv_stream *stream, float *f);
 char *slv_read_str(struct slv_stream *stream);
 bool slv_read_buf(struct slv_stream *stream, void *buf, size_t sz);
 
 #define slv_read_le(stream, ptr) \
-	_Generic((ptr),                         \
-	         unsigned long *: slv_read_u32, \
-	         long *: slv_read_s32,          \
-	         unsigned *: slv_read_u16,      \
-	         int *: slv_read_s16,           \
-	         float *: slv_read_f32          \
+	_Generic((ptr),                                 \
+	         unsigned long *: slv_read_le_u32,      \
+	         long *: slv_read_le_s32,               \
+	         unsigned *: slv_read_le_u16,           \
+	         int *: slv_read_le_s16,                \
+	         float *: slv_read_le_f32               \
 	        )((stream), (ptr))
 
-bool slv_read_u32_arr(struct slv_stream *stream, size_t num_u32,
-                      unsigned long *ul_arr);
-bool slv_read_s32_arr(struct slv_stream *stream, size_t num_s32, long *l_arr);
-bool slv_read_f32_arr(struct slv_stream *stream, size_t num_f32, float *f_arr);
+bool slv_read_le_u32_arr(struct slv_stream *stream, size_t num_u32,
+                         unsigned long *arr);
+bool slv_read_le_s32_arr(struct slv_stream *stream, size_t num_s32, long *arr);
+bool slv_read_le_f32_arr(struct slv_stream *stream, size_t num_f32, float *arr);
 
 #define slv_read_le_arr(stream, num_elem, ptr) \
 	_Generic((ptr),                                 \
-	         unsigned long *: slv_read_u32_arr,     \
-	         long *: slv_read_s32_arr,              \
-	         float *: slv_read_f32_arr              \
+	         unsigned long *: slv_read_le_u32_arr,  \
+	         long *: slv_read_le_s32_arr,           \
+	         float *: slv_read_le_f32_arr           \
 	        )((stream), (num_elem), (ptr))
+
+bool slv_read_be_u32(struct slv_stream *stream, unsigned long *ul);
+
+#define slv_read_be(stream, ptr) \
+	_Generic((ptr),                                 \
+	         unsigned long *: slv_read_be_u32       \
+	        )((stream), (ptr))
 
 #endif // SLV_STREAM_H

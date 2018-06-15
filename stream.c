@@ -117,7 +117,7 @@ struct slv_stream *slv_new_ms(const void *buf, size_t sz, struct slv_err *err)
 	return &ms->stream;
 }
 
-bool slv_read_u32(struct slv_stream *stream, unsigned long *ul)
+bool slv_read_le_u32(struct slv_stream *stream, unsigned long *ul)
 {
 	unsigned char buf[4];
 	if (!slv_read_buf(stream, buf, sizeof buf))
@@ -128,16 +128,16 @@ bool slv_read_u32(struct slv_stream *stream, unsigned long *ul)
 	return true;
 }
 
-bool slv_read_s32(struct slv_stream *stream, long *l)
+bool slv_read_le_s32(struct slv_stream *stream, long *l)
 {
 	unsigned long ul;
-	if (!slv_read_u32(stream, &ul))
+	if (!slv_read_le_u32(stream, &ul))
 		return false;
 	*l = ul & 0x80000000UL ? -(long)(~ul & 0xffffffffUL) - 1L : (long)ul;
 	return true;
 }
 
-bool slv_read_u16(struct slv_stream *stream, unsigned *u)
+bool slv_read_le_u16(struct slv_stream *stream, unsigned *u)
 {
 	unsigned char buf[2];
 	if (!slv_read_buf(stream, buf, sizeof buf))
@@ -148,16 +148,16 @@ bool slv_read_u16(struct slv_stream *stream, unsigned *u)
 	return true;
 }
 
-bool slv_read_s16(struct slv_stream *stream, int *i)
+bool slv_read_le_s16(struct slv_stream *stream, int *i)
 {
 	unsigned u;
-	if (!slv_read_u16(stream, &u))
+	if (!slv_read_le_u16(stream, &u))
 		return false;
 	*i = u & 0x8000U ? -(int)(~u & 0xffffU) - 1 : (int)u;
 	return true;
 }
 
-bool slv_read_f32(struct slv_stream *stream, float *f)
+bool slv_read_le_f32(struct slv_stream *stream, float *f)
 {
 	unsigned char buf[4];
 	if (!slv_read_buf(stream, buf, sizeof buf))
@@ -206,27 +206,38 @@ bool slv_read_buf(struct slv_stream *stream, void *buf, size_t sz)
 	return SLV_CALL(read, stream, buf, sz);
 }
 
-bool slv_read_u32_arr(struct slv_stream *stream, size_t num_u32,
-                      unsigned long *ul_arr)
+bool slv_read_le_u32_arr(struct slv_stream *stream, size_t num_u32,
+                         unsigned long *arr)
 {
 	for (size_t i = 0; i < num_u32; ++i)
-		if (!slv_read_le(stream, &ul_arr[i]))
+		if (!slv_read_le(stream, &arr[i]))
 			return false;
 	return true;
 }
 
-bool slv_read_s32_arr(struct slv_stream *stream, size_t num_s32, long *l_arr)
+bool slv_read_le_s32_arr(struct slv_stream *stream, size_t num_s32, long *arr)
 {
 	for (size_t i = 0; i < num_s32; ++i)
-		if (!slv_read_le(stream, &l_arr[i]))
+		if (!slv_read_le(stream, &arr[i]))
 			return false;
 	return true;
 }
 
-bool slv_read_f32_arr(struct slv_stream *stream, size_t num_f32, float *f_arr)
+bool slv_read_le_f32_arr(struct slv_stream *stream, size_t num_f32, float *arr)
 {
 	for (size_t i = 0; i < num_f32; ++i)
-		if (!slv_read_le(stream, &f_arr[i]))
+		if (!slv_read_le(stream, &arr[i]))
 			return false;
+	return true;
+}
+
+bool slv_read_be_u32(struct slv_stream *stream, unsigned long *ul)
+{
+	unsigned char buf[4];
+	if (!slv_read_buf(stream, buf, sizeof buf))
+		return false;
+	*ul = 0;
+	for (size_t i = 0; i < sizeof buf; ++i)
+		*ul |= (unsigned long)buf[sizeof buf - i - 1] << i * CHAR_BIT;
 	return true;
 }

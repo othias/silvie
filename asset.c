@@ -23,10 +23,12 @@
 #include "error.h"
 #include "utils.h"
 
-bool slv_check_argc(const struct slv_asset *asset, int argc, int err_code)
+bool slv_check_args(const struct slv_asset *asset, size_t num_args, int code)
 {
-	if (asset->argc != argc) {
-		slv_set_err(asset->err, SLV_LIB_SLV, err_code);
+	size_t i;
+	for (i = 0; asset->args[i]; ++i);
+	if (i != num_args) {
+		slv_set_err(asset->err, SLV_LIB_SLV, code);
 		return false;
 	}
 	return true;

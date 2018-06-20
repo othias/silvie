@@ -32,15 +32,14 @@ struct slv_asset {
 		bool (*save)(const void *);
 		void (*del)(void *);
 	} *ops;
-	int argc;
-	char **argv;
+	char **args;
 	const char *out;
 	struct slv_err *err;
 };
 
-typedef struct slv_asset *slv_asset_ctor(int, char **, struct slv_err *);
+typedef struct slv_asset *slv_asset_ctor(char **, struct slv_err *);
 
-bool slv_check_argc(const struct slv_asset *asset, int argc, int err_code);
+bool slv_check_args(const struct slv_asset *asset, size_t num_args, int code);
 char *slv_suf(const struct slv_asset *asset, char **suf, size_t suf_sz);
 
 #endif // SLV_ASSET_H

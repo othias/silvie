@@ -55,7 +55,7 @@ enum slv_lib {
 enum slv_err_code {
 #define SLV_X(name, msg) name,
 	SLV_ERRS(SLV_X)
-#undef X
+#undef SLV_X
 };
 
 struct slv_err {

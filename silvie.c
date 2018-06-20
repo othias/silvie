@@ -36,7 +36,7 @@ static bool process(struct slv_asset *asset)
 	struct slv_stream *stream;
 	bool ret = false;
 	if (!SLV_CALL(check_args, asset)
-	    || !(stream = slv_new_fs(asset->argv[2], asset->err)))
+	    || !(stream = slv_new_fs(asset->args[0], asset->err)))
 		goto del_asset;
 	puts("Loading asset...");
 	if (!SLV_CALL(load, asset, stream)
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 #undef X
 		}[i];
 		struct slv_err err = {0};
-		struct slv_asset *asset = new_asset(argc, argv, &err);
+		struct slv_asset *asset = new_asset(&argv[2], &err);
 		if (asset && process(asset))
 			return EXIT_SUCCESS;
 		fprintf(stderr, "%s\n", slv_err_msg(&err));

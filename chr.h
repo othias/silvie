@@ -83,18 +83,18 @@ struct slv_chr_meshes {
 
 struct slv_chr_tex {
 	struct slv_chr_chunk chunk;
-	long unk_0;
+	unsigned long cst_0;
 	unsigned long width_0;
 	unsigned long height;
-	long unk_1;
+	unsigned long cst_1;
 	unsigned long buf_sz;
 	unsigned long width_1;
 	unsigned long buf_off;
+	long unk_0;
+	long unk_1;
 	long unk_2;
 	long unk_3;
 	long unk_4;
-	long unk_5;
-	long unk_6;
 	long *unks;
 	unsigned char *buf;
 };
@@ -148,6 +148,6 @@ struct slv_chr {
 	struct slv_chr_root root;
 };
 
-struct slv_asset *slv_new_chr(int argc, char **argv, struct slv_err *err);
+struct slv_asset *slv_new_chr(char **args, struct slv_err *err);
 
 #endif // SLV_CHR_H

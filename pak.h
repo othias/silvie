@@ -27,6 +27,6 @@ struct slv_pak {
 	struct slv_asset asset;
 };
 
-struct slv_asset *slv_new_pak(int argc, char **argv, struct slv_err *err);
+struct slv_asset *slv_new_pak(char **args, struct slv_err *err);
 
 #endif // SLV_PAK_H

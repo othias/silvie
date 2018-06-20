@@ -29,7 +29,7 @@
 
 static bool check_args(const void *me)
 {
-	return slv_check_argc(me, 4, SLV_ERR_RAW_ARGS);
+	return slv_check_args(me, 2, SLV_ERR_RAW_ARGS);
 }
 
 static bool load(void *me, struct slv_stream *stream)
@@ -48,7 +48,9 @@ static bool load(void *me, struct slv_stream *stream)
 	       && slv_read_le(stream, &hdr->unk_2)
 	       && slv_read_le(stream, &hdr->unk_3)
 	       && slv_read_le(stream, &hdr->unk_4)
+	       && (raw->in_pak ? slv_read_le(stream, &raw->colors_sz) : true)
 	       && slv_read_buf(stream, raw->colors, sizeof raw->colors)
+	       && (raw->in_pak ? slv_read_le(stream, &raw->buf_sz) : true)
 	       && slv_read_buf(stream, raw->buf, hdr->buf_sz);
 }
 
@@ -104,14 +106,13 @@ static const struct slv_asset_ops ops = {
 	.del = del,
 };
 
-struct slv_asset *slv_new_raw(int argc, char **argv, struct slv_err *err)
+struct slv_asset *slv_new_raw(char **args, struct slv_err *err)
 {
 	return slv_alloc(1, sizeof (struct slv_raw), &(struct slv_raw) {
 		.asset = {
 			.ops = &ops,
-			.argc = argc,
-			.argv = argv,
-			.out = argv[3],
+			.args = args,
+			.out = args[1],
 			.err = err,
 		},
 	}, err);

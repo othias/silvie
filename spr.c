@@ -31,7 +31,7 @@
 
 static bool check_args(const void *me)
 {
-	return slv_check_argc(me, 5, SLV_ERR_SPR_ARGS);
+	return slv_check_args(me, 3, SLV_ERR_SPR_ARGS);
 }
 
 static bool load_anims(struct slv_spr *spr, struct slv_stream *stream)
@@ -337,7 +337,7 @@ static bool save(const void *me)
 		[SLV_SPR_UNCOMPRESSED] = read_uncompressed,
 	}[hdr->format];
 	struct GifColorType pal_colors[SLV_NUM_PAL_COLORS];
-	if (!slv_read_pal(spr->asset.argv[3], pal_colors, spr->asset.err))
+	if (!slv_read_pal(spr->asset.args[1], pal_colors, spr->asset.err))
 		goto free_frames;
 	struct slv_gif_opts opts = {
 		.file_path = path,
@@ -431,14 +431,13 @@ static const struct slv_asset_ops ops = {
 	.del = del,
 };
 
-struct slv_asset *slv_new_spr(int argc, char **argv, struct slv_err *err)
+struct slv_asset *slv_new_spr(char **args, struct slv_err *err)
 {
 	return slv_alloc(1, sizeof (struct slv_spr), &(struct slv_spr) {
 		.asset = {
 			.ops = &ops,
-			.argc = argc,
-			.argv = argv,
-			.out = argv[4],
+			.args = args,
+			.out = args[2],
 			.err = err,
 		},
 	}, err);

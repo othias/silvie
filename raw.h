@@ -41,11 +41,14 @@ struct slv_raw_hdr {
 
 struct slv_raw {
 	struct slv_asset asset;
+	bool in_pak;
 	struct slv_raw_hdr hdr;
+	unsigned long colors_sz;
 	unsigned char colors[3 * SLV_NUM_RAW_COLORS];
+	unsigned long buf_sz;
 	unsigned char *buf;
 };
 
-struct slv_asset *slv_new_raw(int argc, char **argv, struct slv_err *err);
+struct slv_asset *slv_new_raw(char **args, struct slv_err *err);
 
 #endif // SLV_RAW_H

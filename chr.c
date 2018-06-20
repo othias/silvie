@@ -37,7 +37,7 @@
 
 static bool check_args(const void *me)
 {
-	return slv_check_argc(me, 5, SLV_ERR_CHR_ARGS);
+	return slv_check_args(me, 3, SLV_ERR_CHR_ARGS);
 }
 
 static bool load_face(struct slv_chr_face *face, struct slv_stream *stream)
@@ -210,24 +210,24 @@ static bool load_chunk(struct slv_chr *chr, struct slv_stream *stream,
 	case 0x7f04: {
 		struct slv_chr_tex *tex = &root->tex;
 		tex->chunk = chunk;
-		if (!slv_read_le(stream, &tex->unk_0)
+		if (!slv_read_le(stream, &tex->cst_0)
 		    || !slv_read_le(stream, &tex->width_0)
 		    || !slv_read_le(stream, &tex->height)
 		    || !(tex->unks = slv_malloc(tex->height *
 		                                sizeof tex->unks[0],
 		                                stream->err))
-		    || !slv_read_le(stream, &tex->unk_1)
+		    || !slv_read_le(stream, &tex->cst_1)
 		    || !slv_read_le(stream, &tex->buf_sz)
 		    || !(tex->buf = slv_alloc(tex->buf_sz, 1,
 		                              &(unsigned char) {0},
 		                              stream->err))
 		    || !slv_read_le(stream, &tex->width_1)
 		    || !slv_read_le(stream, &tex->buf_off)
+		    || !slv_read_le(stream, &tex->unk_0)
+		    || !slv_read_le(stream, &tex->unk_1)
 		    || !slv_read_le(stream, &tex->unk_2)
 		    || !slv_read_le(stream, &tex->unk_3)
 		    || !slv_read_le(stream, &tex->unk_4)
-		    || !slv_read_le(stream, &tex->unk_5)
-		    || !slv_read_le(stream, &tex->unk_6)
 		    || !slv_read_le_arr(stream, tex->height, tex->unks)
 		    /*
 		     * The last 8 pixels of every CHR texture are missing (the
@@ -621,7 +621,7 @@ static bool save(const void *me)
 	int width;
 	int height;
 	bool ret = false;
-	if (!slv_read_pal(chr->asset.argv[3], pal_colors, chr->asset.err)
+	if (!slv_read_pal(chr->asset.args[1], pal_colors, chr->asset.err)
 	    || !slv_ul_to_i(tex->width_0, &width, chr->asset.err)
 	    || !slv_ul_to_i(tex->height, &height, chr->asset.err))
 		goto free_path;
@@ -748,14 +748,13 @@ static const struct slv_asset_ops ops = {
 	.del = del,
 };
 
-struct slv_asset *slv_new_chr(int argc, char **argv, struct slv_err *err)
+struct slv_asset *slv_new_chr(char **args, struct slv_err *err)
 {
 	return slv_alloc(1, sizeof (struct slv_chr), &(struct slv_chr) {
 		.asset = {
 			.ops = &ops,
-			.argc = argc,
-			.argv = argv,
-			.out = argv[4],
+			.args = args,
+			.out = args[2],
 			.err = err,
 		},
 	}, err);

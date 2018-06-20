@@ -27,7 +27,7 @@
 
 static bool check_args(const void *me)
 {
-	return slv_check_argc(me, 4, SLV_ERR_PAK_ARGS);
+	return slv_check_args(me, 2, SLV_ERR_PAK_ARGS);
 }
 
 struct rnc_hdr {
@@ -103,14 +103,13 @@ static const struct slv_asset_ops ops = {
 	.del = del,
 };
 
-struct slv_asset *slv_new_pak(int argc, char **argv, struct slv_err *err)
+struct slv_asset *slv_new_pak(char **args, struct slv_err *err)
 {
 	return slv_alloc(1, sizeof (struct slv_pak), &(struct slv_pak) {
 		.asset = {
 			.ops = &ops,
-			.argc = argc,
-			.argv = argv,
-			.out = argv[3],
+			.args = args,
+			.out = args[1],
 			.err = err,
 		},
 	}, err);

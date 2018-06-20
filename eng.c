@@ -29,7 +29,7 @@
 
 static bool check_args(const void *me)
 {
-	return slv_check_argc(me, 4, SLV_ERR_ENG_ARGS);
+	return slv_check_args(me, 2, SLV_ERR_ENG_ARGS);
 }
 
 static bool load_event(struct slv_eng_event *event, struct slv_stream *stream)
@@ -285,14 +285,13 @@ static const struct slv_asset_ops ops = {
 	.del = del,
 };
 
-struct slv_asset *slv_new_eng(int argc, char **argv, struct slv_err *err)
+struct slv_asset *slv_new_eng(char **args, struct slv_err *err)
 {
 	return slv_alloc(1, sizeof (struct slv_eng), &(struct slv_eng) {
 		.asset = {
 			.ops = &ops,
-			.argc = argc,
-			.argv = argv,
-			.out = argv[3],
+			.args = args,
+			.out = args[1],
 			.err = err,
 		},
 	}, err);

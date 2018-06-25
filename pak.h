@@ -20,13 +20,16 @@
 #define SLV_PAK_H
 
 #include "asset.h"
+#include "raw.h"
 
 struct slv_err;
 
 struct slv_pak {
 	struct slv_asset asset;
+	long unk;
+	struct slv_raw *bg;
 };
 
-struct slv_asset *slv_new_pak(char **args, struct slv_err *err);
+struct slv_asset *slv_new_pak(char **argv, struct slv_err *err);
 
 #endif // SLV_PAK_H

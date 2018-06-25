@@ -613,8 +613,8 @@ static bool save(const void *me)
 	const struct slv_chr *chr = me;
 	const struct slv_chr_root *root = &chr->root;
 	char *path;
-	char *extension;
-	if (!(path = slv_suf(&chr->asset, &extension, sizeof ".xxx")))
+	char *ext;
+	if (!(path = slv_suf(&chr->asset, &ext, sizeof ".xxx")))
 		return false;
 	struct GifColorType pal_colors[SLV_NUM_PAL_COLORS];
 	const struct slv_chr_tex *tex = &root->tex;
@@ -625,7 +625,7 @@ static bool save(const void *me)
 	    || !slv_ul_to_i(tex->width_0, &width, chr->asset.err)
 	    || !slv_ul_to_i(tex->height, &height, chr->asset.err))
 		goto free_path;
-	strcpy(extension, ".gif");
+	strcpy(ext, ".gif");
 	struct GifFileType *gif = slv_open_gif(&(struct slv_gif_opts) {
 		.file_path = path,
 		.num_colors = SLV_NUM_PAL_COLORS,
@@ -687,7 +687,7 @@ static bool save(const void *me)
 	for (size_t i = 0; i < root->nodes.num_nodes; ++i)
 		if (!save_group(i, &ctx))
 			goto del_tess;
-	strcpy(extension, ".3ds");
+	strcpy(ext, ".3ds");
 	lib3ds_file_save(file, path);
 	ret = true;
 del_tess:

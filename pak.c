@@ -42,9 +42,30 @@ struct rnc_hdr {
 	unsigned char num_chunks;
 };
 
+static bool new_bg(struct slv_pak *pak, struct slv_stream *stream)
+{
+	char *ext;
+	char *path = slv_suf(&pak->asset, &ext, sizeof ".gif");
+	if (!path)
+		return false;
+	strcpy(ext, ".gif");
+	char **args = slv_alloc(3, sizeof args[0], &(char *) {""}, stream->err);
+	if (!args)
+		goto free_path;
+	args[1] = path;
+	if (!(pak->bg = (struct slv_raw *)slv_new_raw(args, stream->err)))
+		goto free_args;
+	pak->bg->in_pak = true;
+	return true;
+free_args:
+	free(args);
+free_path:
+	free(path);
+	return false;
+}
+
 static bool load(void *me, struct slv_stream *stream)
 {
-	struct rnc_hdr hdr;
 	size_t hdr_sz = 18;
 	unsigned char *packed = slv_malloc(hdr_sz, stream->err);
 	if (!packed)
@@ -54,14 +75,15 @@ static bool load(void *me, struct slv_stream *stream)
 	if (!slv_read_buf(stream, packed, hdr_sz)
 	    || !(hdr_stream = slv_new_ms(packed, hdr_sz, stream->err)))
 		goto free_packed;
+	struct rnc_hdr hdr;
 	if (!slv_read_buf(hdr_stream, &hdr.magic[0], sizeof hdr.magic)
 	    || !slv_read_buf(hdr_stream, &hdr.method, 1)
 	    || !slv_read_be(hdr_stream, &hdr.unpacked_sz)
 	    || !slv_read_be(hdr_stream, &hdr.packed_sz))
 		goto del_hdr_stream;
-	unsigned char *tmp;
 	size_t pak_size = hdr_sz + hdr.packed_sz;
-	if (!(tmp = slv_realloc(packed, pak_size, stream->err)))
+	unsigned char *tmp = slv_realloc(packed, pak_size, stream->err);
+	if (!tmp)
 		goto del_hdr_stream;
 	packed = tmp;
 	unsigned char *unpacked;
@@ -78,28 +100,9 @@ static bool load(void *me, struct slv_stream *stream)
 	if (!(unpacked_stream = slv_new_ms(unpacked, pak_size, stream->err)))
 		goto free_unpacked;
 	struct slv_pak *pak = me;
-	char *ext;
-	char *path = slv_suf(&pak->asset, &ext, sizeof ".xxx");
-	if (!path)
-		goto del_unpacked_stream;
-	strcpy(ext, ".gif");
-	char **args;
-	if (!(args = slv_alloc(1, 3 * sizeof args[0], &(char *[]) {
-		"",
-		path,
-		NULL,
-	}, stream->err))) {
-		free(path);
-		goto del_unpacked_stream;
-	}
 	if (!slv_read_le(unpacked_stream, &pak->unk)
-	    || !(pak->bg = (struct slv_raw *)slv_new_raw(args, stream->err))) {
-		free(path);
-		free(args);
-		goto del_unpacked_stream;
-	}
-	pak->bg->in_pak = true;
-	if (!SLV_CALL(load, &pak->bg->asset, unpacked_stream))
+	    || !new_bg(pak, unpacked_stream)
+	    || !SLV_CALL(load, &pak->bg->asset, unpacked_stream))
 		goto del_unpacked_stream;
 	ret = true;
 del_unpacked_stream:
@@ -122,12 +125,13 @@ static bool save(const void *me)
 static void del(void *me)
 {
 	struct slv_pak *pak = me;
-	if (!pak->bg)
-		return;
-	char **args = pak->bg->asset.args;
-	free(args[1]);
-	free(args);
-	SLV_DEL(&pak->bg->asset);
+	if (pak->bg) {
+		struct slv_asset *bg_asset = &pak->bg->asset;
+		free(bg_asset->out);
+		free(bg_asset->args);
+		SLV_DEL(bg_asset);
+	}
+	free(pak);
 }
 
 static const struct slv_asset_ops ops = {

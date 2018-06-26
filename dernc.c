@@ -7,6 +7,11 @@
  * decompress argv[1] into argv[2].
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wconversion"
+
 #ifdef MAIN
 # include <stdio.h>
 # include <stdlib.h>
@@ -181,7 +186,7 @@ static unsigned long bit_read (bit_stream *bs, unsigned long mask,
 			       int n, unsigned char **p);
 
 static unsigned long blong (unsigned char *p);
-static unsigned long llong (unsigned char *p);
+//static unsigned long llong (unsigned char *p);
 static unsigned long bword (unsigned char *p);
 static unsigned long lword (unsigned char *p);
 
@@ -454,14 +459,14 @@ static unsigned long blong (unsigned char *p) {
 /*
  * Return the little-endian longword at p.
  */
-static unsigned long llong (unsigned char *p) {
+/*static unsigned long llong (unsigned char *p) {
     unsigned long n;
     n = p[3];
     n = (n << 8) + p[2];
     n = (n << 8) + p[1];
     n = (n << 8) + p[0];
     return n;
-}
+}*/
 
 /*
  * Return the big-endian word at p.
@@ -529,3 +534,5 @@ long rnc_crc (void *data, long len) {
 
     return val;
 }
+
+#pragma GCC diagnostic pop

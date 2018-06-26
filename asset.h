@@ -33,7 +33,7 @@ struct slv_asset {
 		void (*del)(void *);
 	} *ops;
 	char **args;
-	const char *out;
+	char *out;
 	struct slv_err *err;
 };
 

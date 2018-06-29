@@ -148,6 +148,6 @@ struct slv_chr {
 	struct slv_chr_root root;
 };
 
-struct slv_asset *slv_new_chr(char **args, struct slv_err *err);
+void *slv_new_chr(char **args, struct slv_err *err);
 
 #endif // SLV_CHR_H

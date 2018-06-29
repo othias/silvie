@@ -49,6 +49,6 @@ struct slv_raw {
 	unsigned char *buf;
 };
 
-struct slv_asset *slv_new_raw(char **args, struct slv_err *err);
+void *slv_new_raw(char **args, struct slv_err *err);
 
 #endif // SLV_RAW_H

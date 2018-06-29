@@ -72,6 +72,6 @@ struct slv_eng {
 	struct slv_eng_reply *replies;
 };
 
-struct slv_asset *slv_new_eng(char **args, struct slv_err *err);
+void *slv_new_eng(char **args, struct slv_err *err);
 
 #endif // SLV_ENG_H

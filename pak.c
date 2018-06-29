@@ -17,6 +17,7 @@
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include "asset.h"
@@ -42,18 +43,20 @@ struct rnc_hdr {
 	unsigned char num_chunks;
 };
 
-static bool new_bg(struct slv_pak *pak, struct slv_stream *stream)
+static bool new_bg(struct slv_pak *pak)
 {
 	char *ext;
 	char *path = slv_suf(&pak->asset, &ext, sizeof ".gif");
 	if (!path)
 		return false;
 	strcpy(ext, ".gif");
-	char **args = slv_alloc(3, sizeof args[0], &(char *) {""}, stream->err);
+	struct slv_err *err = pak->asset.err;
+	char **args = slv_alloc(3, sizeof args[0], &(char *) {""}, err);
 	if (!args)
 		goto free_path;
 	args[1] = path;
-	if (!(pak->bg = (struct slv_raw *)slv_new_raw(args, stream->err)))
+	args[2] = NULL;
+	if (!(pak->bg = slv_new_raw(args, err)))
 		goto free_args;
 	pak->bg->in_pak = true;
 	return true;
@@ -101,7 +104,7 @@ static bool load(void *me, struct slv_stream *stream)
 		goto free_unpacked;
 	struct slv_pak *pak = me;
 	if (!slv_read_le(unpacked_stream, &pak->unk)
-	    || !new_bg(pak, unpacked_stream)
+	    || !new_bg(pak)
 	    || !SLV_CALL(load, &pak->bg->asset, unpacked_stream))
 		goto del_unpacked_stream;
 	ret = true;
@@ -141,7 +144,7 @@ static const struct slv_asset_ops ops = {
 	.del = del,
 };
 
-struct slv_asset *slv_new_pak(char **args, struct slv_err *err)
+void *slv_new_pak(char **args, struct slv_err *err)
 {
 	return slv_alloc(1, sizeof (struct slv_pak), &(struct slv_pak) {
 		.asset = {

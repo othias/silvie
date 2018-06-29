@@ -748,7 +748,7 @@ static const struct slv_asset_ops ops = {
 	.del = del,
 };
 
-struct slv_asset *slv_new_chr(char **args, struct slv_err *err)
+void *slv_new_chr(char **args, struct slv_err *err)
 {
 	return slv_alloc(1, sizeof (struct slv_chr), &(struct slv_chr) {
 		.asset = {

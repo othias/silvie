@@ -30,6 +30,6 @@ struct slv_pak {
 	struct slv_raw *bg;
 };
 
-struct slv_asset *slv_new_pak(char **argv, struct slv_err *err);
+void *slv_new_pak(char **argv, struct slv_err *err);
 
 #endif // SLV_PAK_H

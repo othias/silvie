@@ -427,9 +427,18 @@ static bool save_tri(const struct slv_chr_face *chr_face, struct tess_ctx *ctx)
 		texel[0] = (float)(u / tex->width_0);
 		texel[1] = (float)(1 - v / tex->height);
 	}
-	if (slv_sprintf(lib3ds_face->material, ctx->err, "%hhu",
-	                chr_face->mat_off_idx) < 0)
+	char *name = lib3ds_face->material;
+	if (slv_sprintf(name, ctx->err, "%hhu", chr_face->mat_off_idx) < 0)
 		return false;
+	if (chr_face->flags & SLV_CHR_FLAG_TWO_SIDED) {
+		Lib3dsFile *file = ctx->file;
+		Lib3dsMaterial *mat = lib3ds_file_material_by_name(file, name);
+		if (!mat) {
+			slv_set_err(ctx->err, SLV_LIB_STD, SLV_ERR_CHR_MAT);
+			return false;
+		}
+		mat->two_sided = LIB3DS_TRUE;
+	}
 	++ctx->num_tris;
 	return true;
 }

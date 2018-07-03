@@ -35,8 +35,8 @@ struct slv_chr_mat_offsets {
 };
 
 enum slv_chr_flag {
-	SLV_CHR_FLAG_NONE = 0x00,
 	SLV_CHR_FLAG_COLOR_IDX = 0x08,
+	SLV_CHR_FLAG_TWO_SIDED = 0x16,
 };
 
 struct slv_chr_face_vtx {

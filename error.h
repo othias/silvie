@@ -30,16 +30,17 @@
 	X(SLV_ERR_CHR_CHUNK_ID, "Unknown chunk identifier")             \
 	X(SLV_ERR_CHR_CHUNK_SZ, "Chunk size mismatch")                  \
 	X(SLV_ERR_CHR_GROUP_TYPE, "Unknown mesh group type")            \
+	X(SLV_ERR_CHR_MAT, "Unknown material")                          \
 	X(SLV_ERR_CHR_MESH_ID, "Unknown mesh id")                       \
 	X(SLV_ERR_ENG_ARGS, EXP "silvie eng eng_file xml_file")         \
-	X(SLV_ERR_ENG_TOPIC, "Missing element in topic array")          \
+	X(SLV_ERR_ENG_TOPIC, "Unknown topic")                           \
 	X(SLV_ERR_PAK_ARGS, EXP "silvie pak pak_file prefix")           \
 	X(SLV_ERR_RAW_ARGS, EXP "silvie raw raw_file gif_file")         \
 	X(SLV_ERR_SPR_ARGS, EXP "silvie spr spr_file pal_file prefix")  \
+	X(SLV_ERR_SPR_FORMAT, "Unknown frame format")                   \
 	X(SLV_ERR_SPR_FRAME, "Frame size mismatch")                     \
 	X(SLV_ERR_SPR_MASK, "Mask size mismatch")                       \
 	X(SLV_ERR_SPR_RES, "Frame resolution mismatch")                 \
-	X(SLV_ERR_SPR_FORMAT, "Unknown frame format")                   \
 	X(SLV_ERR_READ, "Error reading from stream")                    \
 	X(SLV_ERR_OVERFLOW, "Overflow error")                           \
 	X(SLV_ERR_FILE_SZ, "File size mismatch")

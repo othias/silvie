@@ -117,6 +117,29 @@ struct slv_stream *slv_new_ms(const void *buf, size_t sz, struct slv_err *err)
 	return &ms->stream;
 }
 
+bool slv_read_buf(struct slv_stream *stream, void *buf, size_t sz)
+{
+	return SLV_CALL(read, stream, buf, sz);
+}
+
+char *slv_read_str(struct slv_stream *stream)
+{
+	size_t i = 0;
+	size_t buf_sz = 32;
+	char *tmp;
+	char *str = NULL;
+	do
+		if ((!(i % buf_sz) && (!(tmp = slv_realloc(str, i + buf_sz,
+		                                           stream->err))
+		                       || !(str = tmp)))
+		    || !slv_read_buf(stream, &str[i], 1)) {
+			free(str);
+			return NULL;
+		}
+	while (str[i++]);
+	return str;
+}
+
 bool slv_read_le_u32(struct slv_stream *stream, unsigned long *ul)
 {
 	unsigned char buf[4];
@@ -162,48 +185,25 @@ bool slv_read_le_f32(struct slv_stream *stream, float *f)
 	unsigned char buf[4];
 	if (!slv_read_buf(stream, buf, sizeof buf))
 		return false;
-	float sign = buf[3] & 0x80 ? -1.0f : 1.0f;
+	double sign = buf[3] & 0x80 ? -1. : 1.;
 	int exponent = (buf[3] & 0x7f) << 1 | (buf[2] & 0x80) >> 7;
 	unsigned long sig_ul = (unsigned long)(buf[2] & 0x7f) << 2 * CHAR_BIT
 	                       | (unsigned long)buf[1] << CHAR_BIT
 	                       | (unsigned long)buf[0];
-	double sig = sig_ul / 8388608.0;
+	double sig = sig_ul / 8388608.;
 	if (!exponent)
 		if (!sig_ul)
-			*f = sign * .0f;
+			*f = (float)sign * 0.f;
 		else
 			*f = (float)(sign * ldexp(sig, -126));
 	else if (exponent == 0xff)
 		if (!sig_ul)
-			*f = sign * INFINITY;
+			*f = (float)sign * INFINITY;
 		else
 			*f = NAN;
 	else
-		*f = (float)(sign * ldexp(sig + 1.0, exponent - 127));
+		*f = (float)(sign * ldexp(sig + 1., exponent - 127));
 	return true;
-}
-
-char *slv_read_str(struct slv_stream *stream)
-{
-	size_t i = 0;
-	size_t buf_sz = 32;
-	char *tmp;
-	char *str = NULL;
-	do
-		if ((!(i % buf_sz) && (!(tmp = slv_realloc(str, i + buf_sz,
-		                                           stream->err))
-		                       || !(str = tmp)))
-		    || !slv_read_buf(stream, &str[i], 1)) {
-			free(str);
-			return NULL;
-		}
-	while (str[i++]);
-	return str;
-}
-
-bool slv_read_buf(struct slv_stream *stream, void *buf, size_t sz)
-{
-	return SLV_CALL(read, stream, buf, sz);
 }
 
 bool slv_read_le_u32_arr(struct slv_stream *stream, size_t num_u32,

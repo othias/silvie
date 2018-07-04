@@ -24,6 +24,7 @@
 #include <lib3ds/mesh.h>
 #include <lib3ds/node.h>
 #include <lib3ds/tracks.h>
+#include <lib3ds/types.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -388,17 +389,18 @@ static double get_v(unsigned idx, unsigned long off,
                     const struct slv_chr_tex *tex)
 {
 	unsigned long width = tex->width_0;
-	double v = .0;
+	double v = 0.;
 	for (size_t i = off; i + width < tex->buf_sz; i += width, ++v)
 		if (tex->buf[i] == idx)
 			return v;
-	return .0;
+	return 0.;
 }
 
 static bool save_tri(const struct slv_chr_face *chr_face, struct tess_ctx *ctx)
 {
 	struct Lib3dsMesh *lib3ds_mesh = ctx->lib3ds_mesh;
 	struct Lib3dsFace *lib3ds_face = &lib3ds_mesh->faceL[ctx->num_tris];
+	unsigned char mat_idx = chr_face->mat_off_idx;
 	for (size_t i = 0; i < 3; ++i) {
 		size_t idx = 3 * ctx->num_tris + i;
 		const struct slv_chr_face_vtx *vtx = &chr_face->vertices[2 - i];
@@ -415,8 +417,7 @@ static bool save_tri(const struct slv_chr_face *chr_face, struct tess_ctx *ctx)
 		double v;
 		if (chr_face->flags & SLV_CHR_FLAG_COLOR_IDX) {
 			const unsigned long *o = ctx->root->mat_offsets.offsets;
-			v = get_v(vtx->color_idx, o[chr_face->mat_off_idx],
-			          &ctx->root->tex);
+			v = get_v(vtx->color_idx, o[mat_idx], &ctx->root->tex);
 		}
 		else {
 			u = vtx->texel_u;
@@ -428,7 +429,7 @@ static bool save_tri(const struct slv_chr_face *chr_face, struct tess_ctx *ctx)
 		texel[1] = (float)(1 - v / tex->height);
 	}
 	char *name = lib3ds_face->material;
-	if (slv_sprintf(name, ctx->err, "%hhu", chr_face->mat_off_idx) < 0)
+	if (slv_sprintf(name, ctx->err, "%hhu", mat_idx) < 0)
 		return false;
 	if (chr_face->flags & SLV_CHR_FLAG_TWO_SIDED) {
 		Lib3dsFile *file = ctx->file;
@@ -462,7 +463,7 @@ static bool tesselate(const struct slv_chr_face *face, struct tess_ctx *ctx)
 		GLdouble *pos = vertices[i].pos;
 		for (size_t j = 0; j < 3; ++j) {
 			size_t idx = 3 * face->vertices[i].idx + j;
-			pos[j] = ctx->chr_mesh->vertices[idx];
+			pos[j] = (GLdouble)ctx->chr_mesh->vertices[idx];
 		}
 		vertices[i].idx = i;
 		gluTessVertex(ctx->tess, pos, pos);
@@ -654,7 +655,7 @@ static bool save(const void *me)
 	if (!file)
 		goto close_gif;
 	const char *gif_name = strrchr(path, '/');
-	gif_name = gif_name ? gif_name + 1 : path;
+	gif_name = gif_name ? &gif_name[1] : path;
 	const struct slv_chr_mat_offsets *offsets = &root->mat_offsets;
 	for (size_t i = 0; i < offsets->num_offsets; ++i) {
 		struct Lib3dsMaterial *mat = lib3ds_material_new();

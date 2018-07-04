@@ -40,7 +40,7 @@ char *slv_suf(const struct slv_asset *asset, char **suf, size_t suf_sz)
 	char *path = slv_malloc(out_len + suf_sz, asset->err);
 	if (!path)
 		return NULL;
-	strcpy(path, asset->out);
+	memcpy(path, asset->out, out_len + 1);
 	*suf = &path[out_len];
 	return path;
 }

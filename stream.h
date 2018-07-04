@@ -36,13 +36,13 @@ struct slv_stream {
 
 struct slv_stream *slv_new_fs(const char *path, struct slv_err *err);
 struct slv_stream *slv_new_ms(const void *buf, size_t sz, struct slv_err *err);
+bool slv_read_buf(struct slv_stream *stream, void *buf, size_t sz);
+char *slv_read_str(struct slv_stream *stream);
 bool slv_read_le_u32(struct slv_stream *stream, unsigned long *ul);
 bool slv_read_le_s32(struct slv_stream *stream, long *l);
 bool slv_read_le_u16(struct slv_stream *stream, unsigned *u);
 bool slv_read_le_s16(struct slv_stream *stream, int *i);
 bool slv_read_le_f32(struct slv_stream *stream, float *f);
-char *slv_read_str(struct slv_stream *stream);
-bool slv_read_buf(struct slv_stream *stream, void *buf, size_t sz);
 
 #define slv_read_le(stream, ptr) \
 	_Generic((ptr),                                 \

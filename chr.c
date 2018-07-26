@@ -566,10 +566,10 @@ static bool save_group(size_t idx, struct tess_ctx *ctx)
 	const struct slv_chr_root *root = ctx->root;
 	const struct slv_chr_mesh_group *group = &root->mesh_groups.groups[idx];
 	const unsigned long *ids;
-	size_t num_ids;
+	size_t num_ids = 0;
 	switch (group->type) {
 	case SLV_CHR_GROUP_TYPE_NONE:
-		return true;
+		break;
 	case SLV_CHR_GROUP_TYPE_SNGL:
 		ids = &group->mesh_id;
 		num_ids = 1;
@@ -600,13 +600,14 @@ static bool save_group(size_t idx, struct tess_ctx *ctx)
 		return false;
 	}
 	unsigned num_vertices = 3 * num_tris;
-	if (!lib3ds_mesh_new_point_list(lib3ds_mesh, num_vertices)
-	    || !lib3ds_mesh_new_texel_list(lib3ds_mesh, num_vertices)
-	    || !lib3ds_mesh_new_face_list(lib3ds_mesh, num_tris)) {
-		slv_set_errno(ctx->err);
-		lib3ds_mesh_free(lib3ds_mesh);
-		return false;
-	}
+	if (num_vertices)
+		if (!lib3ds_mesh_new_point_list(lib3ds_mesh, num_vertices)
+		    || !lib3ds_mesh_new_texel_list(lib3ds_mesh, num_vertices)
+		    || !lib3ds_mesh_new_face_list(lib3ds_mesh, num_tris)) {
+			slv_set_errno(ctx->err);
+			lib3ds_mesh_free(lib3ds_mesh);
+			return false;
+		}
 	ctx->num_tris = 0;
 	ctx->lib3ds_mesh = lib3ds_mesh;
 	for (size_t i = 0; i < num_ids; ++i) {

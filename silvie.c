@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 	if (argc == 1) {
 		puts("This is Silvie, an asset extractor for Silver.\n"
 		     "The following formats are supported:\n\n"
-#define X(fmt, desc) "\t" #fmt "\t" desc "\n"
+#define X(format, desc) "\t" #format "\t" desc "\n"
 		     FORMATS(X)
 #undef X
 		     "\nFor usage information on a given format, type:\n\n"
@@ -71,12 +71,12 @@ int main(int argc, char *argv[])
 		     "to the saved files.");
 		return EXIT_FAILURE;
 	}
-	puts("Silvie v0.1\n"
+	puts("Silvie v0.1.0\n"
 	     "Copyright (C) 2018 Lucas Petitiot.\n"
 	     "This is free software; "
 	     "see the LICENSE file for copying conditions.\n");
 	const char *formats[] = {
-#define X(fmt, desc) #fmt,
+#define X(format, desc) #format,
 		FORMATS(X)
 #undef X
 	};
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 		if (strcmp(argv[1], formats[i]))
 			continue;
 		slv_asset_ctor *new_asset = (slv_asset_ctor *[]) {
-#define X(fmt, desc) slv_new_##fmt,
+#define X(format, desc) slv_new_##format,
 			FORMATS(X)
 #undef X
 		}[i];

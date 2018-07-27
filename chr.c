@@ -612,8 +612,10 @@ static bool save_group(size_t idx, struct tess_ctx *ctx)
 	ctx->lib3ds_mesh = lib3ds_mesh;
 	for (size_t i = 0; i < num_ids; ++i) {
 		ctx->chr_mesh = get_mesh(ids[i], &root->meshes);
-		if (!save_mesh(ctx))
+		if (!save_mesh(ctx)) {
+			lib3ds_mesh_free(lib3ds_mesh);
 			return false;
+		}
 	}
 	lib3ds_file_insert_mesh(ctx->file, lib3ds_mesh);
 	return true;

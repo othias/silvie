@@ -685,9 +685,10 @@ static bool save(const void *me)
 		slv_set_errno(chr->asset.err);
 		goto free_file;
 	}
-	gluTessCallback(tess, GLU_TESS_BEGIN_DATA, tess_begin);
-	gluTessCallback(tess, GLU_TESS_VERTEX_DATA, tess_vtx);
-	gluTessCallback(tess, GLU_TESS_ERROR_DATA, tess_err);
+	typedef void APIENTRY glu_callback(void);
+	gluTessCallback(tess, GLU_TESS_BEGIN_DATA, (glu_callback *)tess_begin);
+	gluTessCallback(tess, GLU_TESS_VERTEX_DATA, (glu_callback *)tess_vtx);
+	gluTessCallback(tess, GLU_TESS_ERROR_DATA, (glu_callback *)tess_err);
 	gluTessCallback(tess, GLU_TESS_END, glEnd);
 	gluTessProperty(tess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
 	gluTessProperty(tess, GLU_TESS_BOUNDARY_ONLY, GLU_FALSE);

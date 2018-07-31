@@ -32,7 +32,7 @@ struct slv_asset {
 		bool (*save)(const void *);
 		void (*del)(void *);
 	} *ops;
-	char **args;
+	char **args; // NULL-terminated
 	char *out;
 	struct slv_err *err;
 };

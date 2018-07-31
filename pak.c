@@ -51,9 +51,10 @@ static bool new_bg(struct slv_pak *pak)
 		return false;
 	strcpy(ext, ".gif");
 	struct slv_err *err = pak->asset.err;
-	char **args = slv_alloc(3, sizeof args[0], &(char *) {""}, err);
+	char **args = slv_malloc(3 * sizeof args[0], err);
 	if (!args)
 		goto free_path;
+	args[0] = "";
 	args[1] = path;
 	args[2] = NULL;
 	if (!(pak->bg = slv_new_raw(args, err)))

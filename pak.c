@@ -86,13 +86,14 @@ static bool load(void *me, struct slv_stream *stream)
 	    || !slv_read_be(hdr_stream, &hdr.packed_sz))
 		goto del_hdr_stream;
 	size_t pak_size = hdr_sz + hdr.packed_sz;
-	unsigned char *tmp = slv_realloc(packed, pak_size, stream->err);
+	// The RNC library needs 8 extra bytes for packed and unpacked buffers
+	unsigned char *tmp = slv_realloc(packed, pak_size + 8, stream->err);
 	if (!tmp)
 		goto del_hdr_stream;
 	packed = tmp;
 	unsigned char *unpacked;
 	if (!slv_read_buf(stream, &packed[hdr_sz], hdr.packed_sz)
-	    || !(unpacked = slv_malloc(hdr.unpacked_sz, stream->err)))
+	    || !(unpacked = slv_malloc(hdr.unpacked_sz + 8, stream->err)))
 		goto del_hdr_stream;
 	long rnc_ret = rnc_unpack(packed, unpacked);
 	if (rnc_ret < 0) {

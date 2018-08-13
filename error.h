@@ -53,7 +53,7 @@ enum slv_lib {
 	SLV_LIB_RNC,
 };
 
-enum slv_err_code {
+enum {
 #define SLV_X(name, msg) name,
 	SLV_ERRS(SLV_X)
 #undef SLV_X

@@ -23,7 +23,7 @@
 
 struct slv_err;
 
-enum slv_spr_format {
+enum {
 	SLV_SPR_RLE,
 	SLV_SPR_WITH_MASKS,
 	SLV_SPR_UNCOMPRESSED,

@@ -23,14 +23,14 @@ A prefix argument denotes the common part of the paths to the saved files.
 
 ## Dependencies
 
-* [libgif](http://giflib.sourceforge.net) ≥ 5.0 for saving GIF files
 * [lib3ds](https://code.google.com/archive/p/lib3ds) for saving 3DS files
+* [libgif](http://giflib.sourceforge.net) ≥ 5.0 for saving GIF files
 * [libglu](https://cgit.freedesktop.org/mesa/glu) for polygon triangulation
 
 The decompression of PAK files is handled by Jon Skeet's [dernc module](http://www.yoda.arachsys.com/dk/utils.html) which is already included in Silvie. You should be able to install the required dependencies on a debian-like distribution using apt-get:
 
 ````
-$ apt-get install libgif-dev lib3ds-dev libglu1-mesa-dev
+$ apt-get install lib3ds-dev libgif-dev libglu1-mesa-dev
 ````
 
 
@@ -39,5 +39,5 @@ $ apt-get install libgif-dev lib3ds-dev libglu1-mesa-dev
 Once the required dependencies are installed, you can use a C11 compiler to build Silvie:
 
 ````
-$ gcc *.c -o silvie -std=c11 -lgif -l3ds -lGLU -lGL
+$ gcc *.c -o silvie -std=c11 -l3ds -lgif -lGL -lGLU
 ````

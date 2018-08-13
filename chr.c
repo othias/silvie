@@ -415,7 +415,7 @@ static bool save_tri(const struct slv_chr_face *chr_face, struct tess_ctx *ctx)
 			return false;
 		double u = 1.;
 		double v;
-		if (chr_face->flags & SLV_CHR_FLAG_COLOR_IDX) {
+		if (chr_face->flags & SLV_CHR_COLOR_IDX) {
 			const unsigned long *o = ctx->root->mat_offsets.offsets;
 			v = get_v(vtx->color_idx, o[mat_idx], &ctx->root->tex);
 		}
@@ -431,7 +431,7 @@ static bool save_tri(const struct slv_chr_face *chr_face, struct tess_ctx *ctx)
 	char *name = lib3ds_face->material;
 	if (slv_sprintf(name, ctx->err, "%hhu", mat_idx) < 0)
 		return false;
-	if (chr_face->flags & SLV_CHR_FLAG_TWO_SIDED) {
+	if (chr_face->flags & SLV_CHR_TWO_SIDED) {
 		Lib3dsFile *file = ctx->file;
 		Lib3dsMaterial *mat = lib3ds_file_material_by_name(file, name);
 		if (!mat) {
@@ -565,7 +565,7 @@ static bool save_group(size_t idx, struct tess_ctx *ctx)
 {
 	const struct slv_chr_root *root = ctx->root;
 	const struct slv_chr_mesh_group *group = &root->mesh_groups.groups[idx];
-	const unsigned long *ids;
+	const unsigned long *ids = NULL;
 	size_t num_ids = 0;
 	switch (group->type) {
 	case SLV_CHR_GROUP_TYPE_NONE:

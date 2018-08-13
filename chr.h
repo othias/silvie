@@ -34,9 +34,9 @@ struct slv_chr_mat_offsets {
 	unsigned long *offsets;
 };
 
-enum slv_chr_flag {
-	SLV_CHR_FLAG_COLOR_IDX = 0x08,
-	SLV_CHR_FLAG_TWO_SIDED = 0x16,
+enum {
+	SLV_CHR_COLOR_IDX = 0x08,
+	SLV_CHR_TWO_SIDED = 0x16,
 };
 
 struct slv_chr_face_vtx {
@@ -111,7 +111,7 @@ struct slv_chr_nodes {
 	struct slv_chr_node *nodes;
 };
 
-enum SLV_CHR_GROUP_TYPE {
+enum {
 	SLV_CHR_GROUP_TYPE_NONE,
 	SLV_CHR_GROUP_TYPE_SNGL,
 	SLV_CHR_GROUP_TYPE_LIST,

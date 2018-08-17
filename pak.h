@@ -20,14 +20,25 @@
 #define SLV_PAK_H
 
 #include "asset.h"
-#include "raw.h"
 
 struct slv_err;
 
 struct slv_pak {
 	struct slv_asset asset;
-	long unk;
-	struct slv_raw *bg;
+	unsigned long raw_hdr_sz;
+	unsigned char raw_hdr[44];
+	unsigned long raw_pal_sz;
+	unsigned char raw_pal[768];
+	unsigned long raw_buf_sz;
+	unsigned char *raw_buf;
+	unsigned long out_0_sz;
+	unsigned char *out_0_buf;
+	unsigned long out_1_sz;
+	unsigned char *out_1_buf;
+	unsigned long out_2_hdr_sz;
+	unsigned char out_2_hdr[112];
+	unsigned long out_2_buf_sz;
+	unsigned char *out_2_buf;
 };
 
 void *slv_new_pak(char **argv, struct slv_err *err);

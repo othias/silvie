@@ -48,9 +48,7 @@ static bool load(void *me, struct slv_stream *stream)
 	       && slv_read_le(stream, &hdr->unk_2)
 	       && slv_read_le(stream, &hdr->unk_3)
 	       && slv_read_le(stream, &hdr->unk_4)
-	       && (raw->in_pak ? slv_read_le(stream, &raw->colors_sz) : true)
 	       && slv_read_buf(stream, raw->colors, sizeof raw->colors)
-	       && (raw->in_pak ? slv_read_le(stream, &raw->buf_sz) : true)
 	       && slv_read_buf(stream, raw->buf, hdr->buf_sz);
 }
 

@@ -26,17 +26,27 @@
 #define SLV_ERRS(X) \
 	X(SLV_ERR_NONE, "No error")                                     \
 	X(SLV_ERR_UNK, "Unknown error")                                 \
-	X(SLV_ERR_CHR_ARGS, EXP "silvie chr chr_file pal_file prefix")  \
+	X(SLV_ERR_CHR_ARGS, EXP "silvie chr in.chr in.pal out.3ds "     \
+	                        "out.gif map_name\n\n"                  \
+	                        "The map_name argument is the path of " \
+	                        "out.gif relative to out.3ds, eg:\n\n\t"\
+	                        "silvie chr APPLE.CHR fixed.pal "       \
+	                        "C:\\apple.3ds C:\\apple.gif apple.gif")\
 	X(SLV_ERR_CHR_CHUNK_ID, "Unknown chunk identifier")             \
 	X(SLV_ERR_CHR_CHUNK_SZ, "Chunk size mismatch")                  \
 	X(SLV_ERR_CHR_GROUP_TYPE, "Unknown mesh group type")            \
 	X(SLV_ERR_CHR_MAT, "Unknown material")                          \
 	X(SLV_ERR_CHR_MESH_ID, "Unknown mesh id")                       \
-	X(SLV_ERR_ENG_ARGS, EXP "silvie eng eng_file xml_file")         \
+	X(SLV_ERR_ENG_ARGS, EXP "silvie eng in.eng out.xml")            \
 	X(SLV_ERR_ENG_TOPIC, "Unknown topic")                           \
-	X(SLV_ERR_PAK_ARGS, EXP "silvie pak pak_file prefix")           \
-	X(SLV_ERR_RAW_ARGS, EXP "silvie raw raw_file gif_file")         \
-	X(SLV_ERR_SPR_ARGS, EXP "silvie spr spr_file pal_file prefix")  \
+	X(SLV_ERR_PAK_ARGS, EXP "silvie pak in.pak out.raw out0.bin "   \
+	                        "out1.bin out2.bin")                    \
+	X(SLV_ERR_RAW_ARGS, EXP "silvie raw in.raw out.gif")            \
+	X(SLV_ERR_SPR_ARGS, EXP "silvie spr in.spr in.pal out.gif\n\n"  \
+	                        "Use $type and $index if in.spr "       \
+	                        "contains several files, eg:\n\n\t"     \
+	                        "silvie spr XPLODE.SPR fixed.pal "      \
+	                        "xplode_$type_$index.gif")              \
 	X(SLV_ERR_SPR_FORMAT, "Unknown frame format")                   \
 	X(SLV_ERR_SPR_FRAME, "Frame size mismatch")                     \
 	X(SLV_ERR_SPR_MASK, "Mask size mismatch")                       \

@@ -200,8 +200,8 @@ static bool read_mask_strides(unsigned char *row, struct slv_stream *stream)
 	return true;
 }
 
-static bool read_with_masks(const struct slv_spr_frame *frame,
-                            struct saved_frame *saved, struct slv_err *err)
+static bool read_has_masks(const struct slv_spr_frame *frame,
+                           struct saved_frame *saved, struct slv_err *err)
 {
 	saved->free_buf = false;
 	struct slv_stream *stream = slv_new_ms(frame->data, frame->sz, err);
@@ -228,8 +228,8 @@ del_stream:
 	return ret;
 }
 
-static bool read_uncompressed(const struct slv_spr_frame *frame,
-                              struct saved_frame *saved, struct slv_err *err)
+static bool read_plain(const struct slv_spr_frame *frame,
+                       struct saved_frame *saved, struct slv_err *err)
 {
 	(void)err;
 	saved->free_buf = false;
@@ -316,10 +316,20 @@ static bool save(const void *me)
 {
 	const struct slv_spr *spr = me;
 	const struct slv_spr_hdr *hdr = &spr->hdr;
-	char *path;
-	char *suf;
-	if (!(path = slv_suf(&spr->asset, &suf, sizeof "x000.gif")))
+	char frame_idx[] = "999";
+	struct slv_subst_ctx ctx = {
+		.str = spr->asset.out,
+		.str_len = strlen(spr->asset.out),
+		.num_keys = 2,
+		.keys = (char *[]) {"$type", "$index"},
+		.values = (char *[]) {"frame", frame_idx},
+		.out = NULL,
+	};
+	slv_subst(&ctx);
+	char *path = slv_malloc(ctx.out_sz, spr->asset.err);
+	if (!path)
 		return false;
+	ctx.out = path;
 	struct saved_frame *frames = slv_alloc(hdr->num_frames,
 	                                       sizeof frames[0],
 	                                       &(struct saved_frame) {0},
@@ -327,14 +337,14 @@ static bool save(const void *me)
 	bool ret = false;
 	if (!frames)
 		goto free_path;
-	if (hdr->format > SLV_SPR_UNCOMPRESSED) {
+	if (hdr->format > SLV_SPR_PLAIN) {
 		slv_set_err(spr->asset.err, SLV_LIB_SLV, SLV_ERR_SPR_FORMAT);
 		goto free_frames;
 	}
 	frame_reader *read_frame = (frame_reader *[]) {
 		[SLV_SPR_RLE] = read_rle,
-		[SLV_SPR_WITH_MASKS] = read_with_masks,
-		[SLV_SPR_UNCOMPRESSED] = read_uncompressed,
+		[SLV_SPR_HAS_MASKS] = read_has_masks,
+		[SLV_SPR_PLAIN] = read_plain,
 	}[hdr->format];
 	struct GifColorType pal_colors[SLV_NUM_PAL_COLORS];
 	if (!slv_read_pal(spr->asset.args[1], pal_colors, spr->asset.err))
@@ -350,16 +360,21 @@ static bool save(const void *me)
 		if (!read_frame(&spr->frames[i], &frames[i], spr->asset.err))
 			goto free_frames;
 	}
-	for (size_t i = 0; i < hdr->num_anims; ++i)
-		if (slv_sprintf(suf, spr->asset.err, "a%.3zu.gif", i) < 0
+	ctx.values[0] = "anim";
+	for (size_t i = 0; i < hdr->num_anims; ++i) {
+		if (slv_sprintf(ctx.values[1], spr->asset.err, "%.3zu", i) < 0
+		    || !slv_subst(&ctx)
 		    || !save_anim(&spr->anims[i], frames, spr, &opts))
 			goto free_frames;
+	}
 	opts.animated = false;
 	for (size_t i = 0; i < hdr->num_frames; ++i) {
 		if (frames[i].in_anim)
 			continue;
 		const struct slv_spr_frame_info *info = frames[i].info;
-		if (slv_sprintf(suf, spr->asset.err, "f%.3zu.gif", i) < 0
+		ctx.values[0] = "frame";
+		if (slv_sprintf(ctx.values[1], spr->asset.err, "%.3zu", i) < 0
+		    || !slv_subst(&ctx)
 		    || !slv_ul_to_i(info->width, &opts.width, spr->asset.err)
 		    || !slv_ul_to_i(info->height, &opts.height, spr->asset.err))
 			goto free_frames;
@@ -374,7 +389,8 @@ static bool save(const void *me)
 			goto free_frames;
 		if (!frames[i].mask)
 			continue;
-		suf[0] = 'm';
+		ctx.values[0] = "mask";
+		slv_subst(&ctx);
 		struct GifColorType mask_colors[] = {
 			{0, 0, 0},
 			{0xff, 0xff, 0xff},

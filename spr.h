@@ -25,8 +25,8 @@ struct slv_err;
 
 enum {
 	SLV_SPR_RLE,
-	SLV_SPR_WITH_MASKS,
-	SLV_SPR_UNCOMPRESSED,
+	SLV_SPR_HAS_MASKS,
+	SLV_SPR_PLAIN,
 };
 
 struct slv_spr_hdr {

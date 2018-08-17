@@ -53,8 +53,8 @@ del_asset:
 #define FORMATS(X) \
 	X(chr, "3D model, saved as a 3DS file and a GIF file")          \
 	X(eng, "Dialog text, saved as an XML file")                     \
-	X(pak, "Level archive, saved as a GIF file (incomplete)")       \
-	X(raw, "Raw image, saved as a GIF file")                        \
+	X(pak, "Level archive, saved as a RAW file and 3 BIN files")    \
+	X(raw, "RAW image, saved as a GIF file")                        \
 	X(spr, "Spritesheet, saved as GIF files")
 
 int main(int argc, char *argv[])
@@ -66,12 +66,10 @@ int main(int argc, char *argv[])
 		     FORMATS(X)
 #undef X
 		     "\nFor usage information on a given format, type:\n\n"
-		     "\tsilvie format\n\n"
-		     "A prefix argument denotes the common part of the paths "
-		     "to the saved files.");
+		     "\tsilvie format");
 		return EXIT_FAILURE;
 	}
-	puts("Silvie v0.1.0\n"
+	puts("Silvie v0.2.0\n"
 	     "Copyright (C) 2018 Lucas Petitiot.\n"
 	     "This is free software; "
 	     "see the LICENSE file for copying conditions.\n");

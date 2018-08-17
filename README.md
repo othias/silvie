@@ -9,15 +9,13 @@ The following formats are supported:
 
         chr     3D model, saved as a 3DS file and a GIF file
         eng     Dialog text, saved as an XML file
-        pak     Level archive, saved as a GIF file (incomplete)
-        raw     Raw image, saved as a GIF file
+        pak     Level archive, saved as a RAW file and 3 BIN files
+        raw     RAW image, saved as a GIF file
         spr     Spritesheet, saved as GIF files
 
 For usage information on a given format, type:
 
         silvie format
-
-A prefix argument denotes the common part of the paths to the saved files.
 ````
 
 

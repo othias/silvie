@@ -18,10 +18,8 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <string.h>
 #include "asset.h"
 #include "error.h"
-#include "utils.h"
 
 bool slv_check_args(const struct slv_asset *asset, size_t num_args, int code)
 {
@@ -32,15 +30,4 @@ bool slv_check_args(const struct slv_asset *asset, size_t num_args, int code)
 		return false;
 	}
 	return true;
-}
-
-char *slv_suf(const struct slv_asset *asset, char **suf, size_t suf_sz)
-{
-	size_t out_len = strlen(asset->out);
-	char *path = slv_malloc(out_len + suf_sz, asset->err);
-	if (!path)
-		return NULL;
-	memcpy(path, asset->out, out_len + 1);
-	*suf = &path[out_len];
-	return path;
 }

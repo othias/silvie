@@ -166,3 +166,57 @@ int slv_max(int a, int b)
 {
 	return a > b ? a : b;
 }
+
+static const char *get_key(const struct slv_subst_ctx *ctx, size_t *idx)
+{
+	const char *ret = NULL;
+	for (size_t i = 0; i < ctx->num_keys; ++i) {
+		const char *key = strstr(ctx->pos, ctx->keys[i]);
+		if (!key)
+			continue;
+		if (!ret || key < ret) {
+			ret = key;
+			*idx = i;
+		}
+	}
+	return ret;
+}
+
+static void cpy_from_to(struct slv_subst_ctx *ctx, size_t len)
+{
+	if (ctx->out) {
+		memcpy(ctx->to, ctx->from, len);
+		ctx->to += len;
+	}
+}
+
+char *slv_subst(struct slv_subst_ctx *ctx)
+{
+	ctx->pos = ctx->str;
+	ctx->to = ctx->out;
+	ctx->out_sz = 0;
+	do {
+		size_t idx;
+		size_t len;
+		ctx->from = ctx->pos;
+		const char *key = get_key(ctx, &idx);
+		if (!key) {
+			len = ctx->str_len - (size_t)(ctx->pos - ctx->str);
+			ctx->pos += len;
+		}
+		else {
+			len = (size_t)(key - ctx->pos);
+			cpy_from_to(ctx, len);
+			ctx->out_sz += len;
+			ctx->pos = &key[strlen(ctx->keys[idx])];
+			ctx->from = ctx->values[idx];
+			len = strlen(ctx->from);
+		}
+		cpy_from_to(ctx, len);
+		ctx->out_sz += len;
+	} while(ctx->pos < &ctx->str[ctx->str_len]);
+	if (ctx->out)
+		ctx->out[ctx->out_sz] = '\0';
+	++ctx->out_sz;
+	return ctx->out;
+}

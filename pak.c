@@ -19,7 +19,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
 #include "asset.h"
 #include "dernc.h"
 #include "error.h"
@@ -29,7 +28,7 @@
 
 static bool check_args(const void *me)
 {
-	return slv_check_args(me, 2, SLV_ERR_PAK_ARGS);
+	return slv_check_args(me, 5, SLV_ERR_PAK_ARGS);
 }
 
 struct rnc_hdr {
@@ -42,31 +41,6 @@ struct rnc_hdr {
 	unsigned char leeway;
 	unsigned char num_chunks;
 };
-
-static bool new_bg(struct slv_pak *pak)
-{
-	char *ext;
-	char *path = slv_suf(&pak->asset, &ext, sizeof ".gif");
-	if (!path)
-		return false;
-	strcpy(ext, ".gif");
-	struct slv_err *err = pak->asset.err;
-	char **args = slv_malloc(3 * sizeof args[0], err);
-	if (!args)
-		goto free_path;
-	args[0] = "";
-	args[1] = path;
-	args[2] = NULL;
-	if (!(pak->bg = slv_new_raw(args, err)))
-		goto free_args;
-	pak->bg->in_pak = true;
-	return true;
-free_args:
-	free(args);
-free_path:
-	free(path);
-	return false;
-}
 
 static bool load(void *me, struct slv_stream *stream)
 {
@@ -85,15 +59,16 @@ static bool load(void *me, struct slv_stream *stream)
 	    || !slv_read_be(hdr_stream, &hdr.unpacked_sz)
 	    || !slv_read_be(hdr_stream, &hdr.packed_sz))
 		goto del_hdr_stream;
-	size_t pak_size = hdr_sz + hdr.packed_sz;
+	size_t pak_sz = hdr_sz + hdr.packed_sz;
 	// The RNC library needs 8 extra bytes for packed and unpacked buffers
-	unsigned char *tmp = slv_realloc(packed, pak_size + 8, stream->err);
+	unsigned char *tmp = slv_realloc(packed, pak_sz + 8, stream->err);
 	if (!tmp)
 		goto del_hdr_stream;
 	packed = tmp;
 	unsigned char *unpacked;
+	size_t unpacked_sz = hdr.unpacked_sz;
 	if (!slv_read_buf(stream, &packed[hdr_sz], hdr.packed_sz)
-	    || !(unpacked = slv_malloc(hdr.unpacked_sz + 8, stream->err)))
+	    || !(unpacked = slv_malloc(unpacked_sz + 8, stream->err)))
 		goto del_hdr_stream;
 	long rnc_ret = rnc_unpack(packed, unpacked);
 	if (rnc_ret < 0) {
@@ -102,12 +77,29 @@ static bool load(void *me, struct slv_stream *stream)
 		goto free_unpacked;
 	}
 	struct slv_stream *unpacked_stream;
-	if (!(unpacked_stream = slv_new_ms(unpacked, pak_size, stream->err)))
+	if (!(unpacked_stream = slv_new_ms(unpacked, unpacked_sz, stream->err)))
 		goto free_unpacked;
 	struct slv_pak *pak = me;
-	if (!slv_read_le(unpacked_stream, &pak->unk)
-	    || !new_bg(pak)
-	    || !SLV_CALL(load, &pak->bg->asset, unpacked_stream))
+	if (!slv_read_le(unpacked_stream, &pak->raw_hdr_sz)
+	    || !slv_read_buf(unpacked_stream, pak->raw_hdr, sizeof pak->raw_hdr)
+	    || !slv_read_le(unpacked_stream, &pak->raw_pal_sz)
+	    || !slv_read_buf(unpacked_stream, pak->raw_pal, sizeof pak->raw_pal)
+	    || !slv_read_le(unpacked_stream, &pak->raw_buf_sz)
+	    || !(pak->raw_buf = slv_malloc(pak->raw_buf_sz, stream->err))
+	    || !slv_read_buf(unpacked_stream, pak->raw_buf, pak->raw_buf_sz)
+	    || !slv_read_le(unpacked_stream, &pak->out_0_sz)
+	    || !(pak->out_0_buf = slv_malloc(pak->out_0_sz, stream->err))
+	    || !slv_read_buf(unpacked_stream, pak->out_0_buf, pak->out_0_sz)
+	    || !slv_read_le(unpacked_stream, &pak->out_1_sz)
+	    || !(pak->out_1_buf = slv_malloc(pak->out_1_sz, stream->err))
+	    || !slv_read_buf(unpacked_stream, pak->out_1_buf, pak->out_1_sz)
+	    || !slv_read_le(unpacked_stream, &pak->out_2_hdr_sz)
+	    || !slv_read_buf(unpacked_stream, pak->out_2_hdr,
+	                     sizeof pak->out_2_hdr)
+	    || !slv_read_le(unpacked_stream, &pak->out_2_buf_sz)
+	    || !(pak->out_2_buf = slv_malloc(pak->out_2_buf_sz, stream->err))
+	    || !slv_read_buf(unpacked_stream, pak->out_2_buf,
+	                     pak->out_2_buf_sz))
 		goto del_unpacked_stream;
 	ret = true;
 del_unpacked_stream:
@@ -121,21 +113,56 @@ free_packed:
 	return ret;
 }
 
+static bool save_file(const char *path, const unsigned char *buf, size_t sz,
+                      struct slv_err *err)
+{
+	FILE *file = slv_fopen(path, "wb", err);
+	if (!file)
+		return false;
+	bool ret = false;
+	if (!slv_fwrite(buf, sz, 1, file, err))
+		goto close_file;
+	ret = true;
+close_file:
+	fclose(file);
+	return ret;
+}
+
 static bool save(const void *me)
 {
 	const struct slv_pak *pak = me;
-	return SLV_CALL(save, &pak->bg->asset);
+	struct slv_err *err = pak->asset.err;
+	char **args = pak->asset.args;
+	FILE *bg = slv_fopen(args[1], "wb", err);
+	bool ret = false;
+	if (!bg)
+		return false;
+	FILE *out_2 = slv_fopen(args[4], "wb", err);
+	if (!out_2)
+		goto close_bg;
+	if (!slv_fwrite(pak->raw_hdr, sizeof pak->raw_hdr, 1, bg, err)
+	    || !slv_fwrite(pak->raw_pal, sizeof pak->raw_pal, 1, bg, err)
+	    || !slv_fwrite(pak->raw_buf, pak->raw_buf_sz, 1, bg, err)
+	    || !save_file(args[2], pak->out_0_buf, pak->out_0_sz, err)
+	    || !save_file(args[3], pak->out_1_buf, pak->out_1_sz, err)
+	    || !slv_fwrite(pak->out_2_hdr, sizeof pak->out_2_hdr, 1, out_2, err)
+	    || !slv_fwrite(pak->out_2_buf, pak->out_2_buf_sz, 1, out_2, err))
+		goto close_out_2;
+	ret = true;
+close_out_2:
+	fclose(out_2);
+close_bg:
+	fclose(bg);
+	return ret;
 }
 
 static void del(void *me)
 {
 	struct slv_pak *pak = me;
-	if (pak->bg) {
-		struct slv_asset *bg_asset = &pak->bg->asset;
-		free(bg_asset->out);
-		free(bg_asset->args);
-		SLV_DEL(bg_asset);
-	}
+	free(pak->raw_buf);
+	free(pak->out_0_buf);
+	free(pak->out_1_buf);
+	free(pak->out_2_buf);
 	free(pak);
 }
 

@@ -53,4 +53,19 @@ bool slv_sz_to_us(size_t sz, unsigned short *us, struct slv_err *err);
 int slv_min(int a, int b);
 int slv_max(int a, int b);
 
+struct slv_subst_ctx {
+	const char *str;
+	size_t str_len;
+	size_t num_keys;
+	char **keys;
+	char **values;
+	char *out;
+	size_t out_sz;
+	const char *pos;
+	const char *from;
+	char *to;
+};
+
+char *slv_subst(struct slv_subst_ctx *ctx);
+
 #endif // SLV_UTILS_H

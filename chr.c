@@ -38,7 +38,7 @@
 
 static bool check_args(const void *me)
 {
-	return slv_check_args(me, 3, SLV_ERR_CHR_ARGS);
+	return slv_check_args(me, 5, SLV_ERR_CHR_ARGS);
 }
 
 static bool load_face(struct slv_chr_face *face, struct slv_stream *stream)
@@ -625,10 +625,6 @@ static bool save(const void *me)
 {
 	const struct slv_chr *chr = me;
 	const struct slv_chr_root *root = &chr->root;
-	char *path;
-	char *ext;
-	if (!(path = slv_suf(&chr->asset, &ext, sizeof ".xxx")))
-		return false;
 	struct GifColorType pal_colors[SLV_NUM_PAL_COLORS];
 	const struct slv_chr_tex *tex = &root->tex;
 	int width;
@@ -637,17 +633,16 @@ static bool save(const void *me)
 	if (!slv_read_pal(chr->asset.args[1], pal_colors, chr->asset.err)
 	    || !slv_ul_to_i(tex->width_0, &width, chr->asset.err)
 	    || !slv_ul_to_i(tex->height, &height, chr->asset.err))
-		goto free_path;
-	strcpy(ext, ".gif");
+		return false;
 	struct GifFileType *gif = slv_open_gif(&(struct slv_gif_opts) {
-		.file_path = path,
+		.file_path = chr->asset.args[3],
 		.num_colors = SLV_NUM_PAL_COLORS,
 		.colors = pal_colors,
 		.width = width,
 		.height = height,
 	}, chr->asset.err);
 	if (!gif)
-		goto free_path;
+		return false;
 	if (!slv_fill_gif(gif, &(struct slv_gif_buf_info) {
 		.width = width,
 		.height = height,
@@ -657,8 +652,6 @@ static bool save(const void *me)
 	struct Lib3dsFile *file = lib3ds_file_new();
 	if (!file)
 		goto close_gif;
-	const char *gif_name = strrchr(path, '/');
-	gif_name = gif_name ? &gif_name[1] : path;
 	const struct slv_chr_mat_offsets *offsets = &root->mat_offsets;
 	for (size_t i = 0; i < offsets->num_offsets; ++i) {
 		struct Lib3dsMaterial *mat = lib3ds_material_new();
@@ -671,7 +664,7 @@ static bool save(const void *me)
 			goto free_file;
 		}
 		struct Lib3dsTextureMap *map = &mat->texture1_map;
-		strcpy(map->name, gif_name);
+		strcpy(map->name, chr->asset.args[4]);
 		unsigned long off = offsets->offsets[i];
 		double off_u = (double)(off % tex->width_0) / tex->width_0;
 		double off_v = (double)(off / tex->width_0) / tex->height;
@@ -701,8 +694,7 @@ static bool save(const void *me)
 	for (size_t i = 0; i < root->nodes.num_nodes; ++i)
 		if (!save_group(i, &ctx))
 			goto del_tess;
-	strcpy(ext, ".3ds");
-	lib3ds_file_save(file, path);
+	lib3ds_file_save(file, chr->asset.out);
 	ret = true;
 del_tess:
 	gluDeleteTess(tess);
@@ -710,8 +702,6 @@ free_file:
 	lib3ds_file_free(file);
 close_gif:
 	EGifCloseFile(gif, NULL);
-free_path:
-	free(path);
 	return ret;
 }
 

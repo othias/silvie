@@ -156,7 +156,7 @@ bool slv_read_le_s32(struct slv_stream *stream, long *l)
 	unsigned long ul;
 	if (!slv_read_le_u32(stream, &ul))
 		return false;
-	*l = ul & 0x80000000UL ? -(long)(~ul & 0xffffffffUL) - 1L : (long)ul;
+	*l = (ul & 0x80000000UL) ? -(long)(~ul & 0xffffffffUL) - 1L : (long)ul;
 	return true;
 }
 
@@ -176,7 +176,7 @@ bool slv_read_le_s16(struct slv_stream *stream, int *i)
 	unsigned u;
 	if (!slv_read_le_u16(stream, &u))
 		return false;
-	*i = u & 0x8000U ? -(int)(~u & 0xffffU) - 1 : (int)u;
+	*i = (u & 0x8000U) ? -(int)(~u & 0xffffU) - 1 : (int)u;
 	return true;
 }
 
@@ -185,7 +185,7 @@ bool slv_read_le_f32(struct slv_stream *stream, float *f)
 	unsigned char buf[4];
 	if (!slv_read_buf(stream, buf, sizeof buf))
 		return false;
-	double sign = buf[3] & 0x80 ? -1. : 1.;
+	double sign = (buf[3] & 0x80) ? -1. : 1.;
 	int exponent = (buf[3] & 0x7f) << 1 | (buf[2] & 0x80) >> 7;
 	unsigned long sig_ul = (unsigned long)(buf[2] & 0x7f) << 2 * CHAR_BIT
 	                       | (unsigned long)buf[1] << CHAR_BIT

@@ -22,6 +22,7 @@
 #include <stdbool.h>
 
 struct GifColorType;
+struct GifFileType;
 struct slv_err;
 
 struct slv_gif_opts {

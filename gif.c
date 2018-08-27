@@ -19,6 +19,7 @@
 #include <gif_lib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include "error.h"
 #include "gif.h"
 #include "utils.h"

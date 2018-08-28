@@ -37,7 +37,7 @@ struct slv_asset {
 	struct slv_err *err;
 };
 
-typedef void *slv_asset_ctor(char **, struct slv_err *);
+typedef struct slv_asset *slv_asset_ctor(char **, struct slv_err *);
 
 bool slv_check_args(const struct slv_asset *asset, size_t num_args, int code);
 

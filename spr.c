@@ -363,8 +363,8 @@ static bool save(const void *me)
 	ctx.values[0] = "anim";
 	for (size_t i = 0; i < hdr->num_anims; ++i) {
 		if (slv_sprintf(ctx.values[1], spr->asset.err, "%.3zu", i) < 0
-		    || !slv_subst(&ctx)
-		    || !save_anim(&spr->anims[i], frames, spr, &opts))
+		    || ((void)slv_subst(&ctx), !save_anim(&spr->anims[i],
+		                                          frames, spr, &opts)))
 			goto free_frames;
 	}
 	opts.animated = false;
@@ -374,10 +374,10 @@ static bool save(const void *me)
 		const struct slv_spr_frame_info *info = frames[i].info;
 		ctx.values[0] = "frame";
 		if (slv_sprintf(ctx.values[1], spr->asset.err, "%.3zu", i) < 0
-		    || !slv_subst(&ctx)
 		    || !slv_ul_to_i(info->width, &opts.width, spr->asset.err)
 		    || !slv_ul_to_i(info->height, &opts.height, spr->asset.err))
 			goto free_frames;
+		slv_subst(&ctx);
 		struct slv_gif_buf_info buf_info = {
 			.width = opts.width,
 			.height = opts.height,
@@ -447,7 +447,7 @@ static const struct slv_asset_ops ops = {
 	.del = del,
 };
 
-void *slv_new_spr(char **args, struct slv_err *err)
+struct slv_asset *slv_new_spr(char **args, struct slv_err *err)
 {
 	return slv_alloc(1, sizeof (struct slv_spr), &(struct slv_spr) {
 		.asset = {

@@ -70,6 +70,6 @@ struct slv_spr {
 	struct slv_spr_frame *frames;
 };
 
-void *slv_new_spr(char **args, struct slv_err *err);
+struct slv_asset *slv_new_spr(char **args, struct slv_err *err);
 
 #endif // SLV_SPR_H

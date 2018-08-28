@@ -37,10 +37,6 @@ struct rnc_hdr {
 	unsigned char method;
 	unsigned long unpacked_sz;
 	unsigned long packed_sz;
-	unsigned unpacked_crc;
-	unsigned packed_crc;
-	unsigned char leeway;
-	unsigned char num_chunks;
 };
 
 static bool load(void *me, struct slv_stream *stream)
@@ -174,7 +170,7 @@ static const struct slv_asset_ops ops = {
 	.del = del,
 };
 
-void *slv_new_pak(char **args, struct slv_err *err)
+struct slv_asset *slv_new_pak(char **args, struct slv_err *err)
 {
 	return slv_alloc(1, sizeof (struct slv_pak), &(struct slv_pak) {
 		.asset = {

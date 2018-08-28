@@ -190,7 +190,7 @@ static void cpy_from_to(struct slv_subst_ctx *ctx, size_t len)
 	}
 }
 
-char *slv_subst(struct slv_subst_ctx *ctx)
+void slv_subst(struct slv_subst_ctx *ctx)
 {
 	ctx->pos = ctx->str;
 	ctx->to = ctx->out;
@@ -218,5 +218,4 @@ char *slv_subst(struct slv_subst_ctx *ctx)
 	if (ctx->out)
 		ctx->out[ctx->out_sz] = '\0';
 	++ctx->out_sz;
-	return ctx->out;
 }

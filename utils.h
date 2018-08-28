@@ -66,6 +66,6 @@ struct slv_subst_ctx {
 	char *to;
 };
 
-char *slv_subst(struct slv_subst_ctx *ctx);
+void slv_subst(struct slv_subst_ctx *ctx);
 
 #endif // SLV_UTILS_H

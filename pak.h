@@ -41,6 +41,6 @@ struct slv_pak {
 	unsigned char *out_2_buf;
 };
 
-void *slv_new_pak(char **argv, struct slv_err *err);
+struct slv_asset *slv_new_pak(char **argv, struct slv_err *err);
 
 #endif // SLV_PAK_H

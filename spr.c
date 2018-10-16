@@ -432,11 +432,10 @@ static void del(void *me)
 	free(spr->frame_infos);
 	if (hdr->num_anims)
 		del_anims(spr);
-	if (spr->frames) {
+	if (spr->frames)
 		for (size_t i = 0; i < hdr->num_frames; ++i)
 			free(spr->frames[i].data);
-		free(spr->frames);
-	}
+	free(spr->frames);
 	free(spr);
 }
 

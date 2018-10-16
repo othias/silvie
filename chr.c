@@ -140,9 +140,9 @@ static bool load_mesh_group(struct slv_chr_mesh_group *grp,
 	switch (grp->type) {
 	case SLV_CHR_GROUP_TYPE_NONE:
 		return true;
-	case SLV_CHR_GROUP_TYPE_SNGL:
+	case SLV_CHR_GROUP_TYPE_SINGLE:
 		return slv_read_le(stream, &grp->mesh_id);
-	case SLV_CHR_GROUP_TYPE_LIST:
+	case SLV_CHR_GROUP_TYPE_ARR:
 		return slv_read_le(stream, &grp->num_mesh_ids)
 		       && (grp->mesh_ids = slv_malloc(grp->num_mesh_ids *
 		                                      sizeof grp->mesh_ids[0],
@@ -541,9 +541,8 @@ free_node:
 static struct slv_chr_mesh *get_mesh(unsigned long id,
                                      const struct slv_chr_meshes *meshes)
 {
-	size_t idx;
-	if (id >= meshes->fst_mesh_id
-	    && (idx = id - meshes->fst_mesh_id) < meshes->num_meshes)
+	size_t idx = id - meshes->fst_mesh_id;
+	if (id >= meshes->fst_mesh_id && idx < meshes->num_meshes)
 		return &meshes->meshes[idx];
 	return NULL;
 }
@@ -570,11 +569,11 @@ static bool save_group(size_t idx, struct tess_ctx *ctx)
 	switch (group->type) {
 	case SLV_CHR_GROUP_TYPE_NONE:
 		break;
-	case SLV_CHR_GROUP_TYPE_SNGL:
+	case SLV_CHR_GROUP_TYPE_SINGLE:
 		ids = &group->mesh_id;
 		num_ids = 1;
 		break;
-	case SLV_CHR_GROUP_TYPE_LIST:
+	case SLV_CHR_GROUP_TYPE_ARR:
 		ids = group->mesh_ids;
 		num_ids = group->num_mesh_ids;
 		break;
@@ -718,7 +717,7 @@ static void del_mesh(const struct slv_chr_mesh *mesh)
 
 static void del_group(const struct slv_chr_mesh_group *group)
 {
-	if (group->type == SLV_CHR_GROUP_TYPE_LIST)
+	if (group->type == SLV_CHR_GROUP_TYPE_ARR)
 		free(group->mesh_ids);
 }
 
@@ -728,20 +727,18 @@ static void del(void *me)
 	const struct slv_chr_root *root = &chr->root;
 	free(root->mat_offsets.offsets);
 	const struct slv_chr_meshes *meshes = &root->meshes;
-	if (meshes->meshes) {
+	if (meshes->meshes)
 		for (size_t i = 0; i < meshes->num_meshes; ++i)
 			del_mesh(&meshes->meshes[i]);
-		free(meshes->meshes);
-	}
+	free(meshes->meshes);
 	free(root->tex.unks);
 	free(root->tex.buf);
 	free(root->nodes.nodes);
 	const struct slv_chr_mesh_groups *groups = &root->mesh_groups;
-	if (groups->groups) {
+	if (groups->groups)
 		for (size_t i = 0; i < root->nodes.num_nodes; ++i)
 			del_group(&groups->groups[i]);
-		free(groups->groups);
-	}
+	free(groups->groups);
 	free(chr);
 }
 

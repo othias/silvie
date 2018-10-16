@@ -128,7 +128,7 @@ char *slv_read_str(struct slv_stream *stream)
 	size_t buf_sz = 32;
 	char *tmp;
 	char *str = NULL;
-	do
+	do {
 		if ((!(i % buf_sz) && (!(tmp = slv_realloc(str, i + buf_sz,
 		                                           stream->err))
 		                       || !(str = tmp)))
@@ -136,7 +136,7 @@ char *slv_read_str(struct slv_stream *stream)
 			free(str);
 			return NULL;
 		}
-	while (str[i++]);
+	} while (str[i++]);
 	return str;
 }
 
@@ -154,7 +154,7 @@ bool slv_read_le_u32(struct slv_stream *stream, unsigned long *ul)
 bool slv_read_le_s32(struct slv_stream *stream, long *l)
 {
 	unsigned long ul;
-	if (!slv_read_le_u32(stream, &ul))
+	if (!slv_read_le(stream, &ul))
 		return false;
 	*l = (ul & 0x80000000UL) ? -(long)(~ul & 0xffffffffUL) - 1L : (long)ul;
 	return true;
@@ -174,7 +174,7 @@ bool slv_read_le_u16(struct slv_stream *stream, unsigned *u)
 bool slv_read_le_s16(struct slv_stream *stream, int *i)
 {
 	unsigned u;
-	if (!slv_read_le_u16(stream, &u))
+	if (!slv_read_le(stream, &u))
 		return false;
 	*i = (u & 0x8000U) ? -(int)(~u & 0xffffU) - 1 : (int)u;
 	return true;

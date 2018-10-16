@@ -188,6 +188,7 @@ static void cpy_from_to(struct slv_subst_ctx *ctx, size_t len)
 		memcpy(ctx->to, ctx->from, len);
 		ctx->to += len;
 	}
+	ctx->out_sz += len;
 }
 
 void slv_subst(struct slv_subst_ctx *ctx)
@@ -207,13 +208,11 @@ void slv_subst(struct slv_subst_ctx *ctx)
 		else {
 			len = (size_t)(key - ctx->pos);
 			cpy_from_to(ctx, len);
-			ctx->out_sz += len;
 			ctx->pos = &key[strlen(ctx->keys[idx])];
 			ctx->from = ctx->values[idx];
 			len = strlen(ctx->from);
 		}
 		cpy_from_to(ctx, len);
-		ctx->out_sz += len;
 	} while(ctx->pos < &ctx->str[ctx->str_len]);
 	if (ctx->out)
 		ctx->out[ctx->out_sz] = '\0';

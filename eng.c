@@ -174,7 +174,7 @@ static struct slv_eng_topic *get_topic(const struct slv_eng *eng,
 }
 
 static bool save_topic(const struct slv_eng_topic *topic,
-		       const struct slv_eng *eng, FILE *xml)
+                       const struct slv_eng *eng, FILE *xml)
 {
 	if (slv_fprintf(xml, eng->asset.err, "\t<topic name=\"%s\">\n",
 			topic->name) < 0)
@@ -254,17 +254,15 @@ static void del(void *me)
 {
 	struct slv_eng *eng = me;
 	const struct slv_eng_hdr *hdr = &eng->hdr;
-	if (eng->events) {
+	if (eng->events)
 		for (size_t i = 0; i < hdr->num_events; ++i)
 			del_event(&eng->events[i]);
-		free(eng->events);
-	}
-	if (eng->topics) {
+	free(eng->events);
+	if (eng->topics)
 		for (size_t i = 0; i < hdr->num_topics; ++i)
 			del_topic(&eng->topics[i]);
-		free(eng->topics);
-	}
-	if (eng->replies) {
+	free(eng->topics);
+	if (eng->replies)
 		for (size_t i = 0; i < hdr->num_replies; ++i) {
 			const struct slv_eng_reply *reply = &eng->replies[i];
 			free(reply->name);
@@ -273,8 +271,7 @@ static void del(void *me)
 			free(reply->anim);
 			free(reply->text);
 		}
-		free(eng->replies);
-	}
+	free(eng->replies);
 	free(eng);
 }
 

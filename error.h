@@ -29,9 +29,9 @@
 	X(SLV_ERR_CHR_ARGS, EXP "silvie chr in.chr in.pal out.3ds "     \
 	                        "out.gif map_name\n\n"                  \
 	                        "The map_name argument is the path of " \
-	                        "out.gif relative to out.3ds, eg:\n\n\t"\
-	                        "silvie chr APPLE.CHR fixed.pal "       \
-	                        "C:\\apple.3ds C:\\apple.gif apple.gif")\
+	                        "out.gif relative to out.3ds, eg:\n\n"  \
+	                        "\tsilvie chr APPLE.CHR fixed.pal "     \
+	                        "out/apple.3ds out/apple.gif apple.gif")\
 	X(SLV_ERR_CHR_CHUNK_ID, "Unknown chunk identifier")             \
 	X(SLV_ERR_CHR_CHUNK_SZ, "Chunk size mismatch")                  \
 	X(SLV_ERR_CHR_GROUP_TYPE, "Unknown mesh group type")            \
@@ -44,8 +44,8 @@
 	X(SLV_ERR_RAW_ARGS, EXP "silvie raw in.raw out.gif")            \
 	X(SLV_ERR_SPR_ARGS, EXP "silvie spr in.spr in.pal out.gif\n\n"  \
 	                        "Use $type and $index if in.spr "       \
-	                        "contains several files, eg:\n\n\t"     \
-	                        "silvie spr XPLODE.SPR fixed.pal "      \
+	                        "contains several files, eg:\n\n"       \
+	                        "\tsilvie spr XPLODE.SPR fixed.pal "    \
 	                        "xplode_$type_$index.gif")              \
 	X(SLV_ERR_SPR_FORMAT, "Unknown frame format")                   \
 	X(SLV_ERR_SPR_FRAME, "Frame size mismatch")                     \

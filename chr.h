@@ -113,8 +113,8 @@ struct slv_chr_nodes {
 
 enum {
 	SLV_CHR_GROUP_TYPE_NONE,
-	SLV_CHR_GROUP_TYPE_SNGL,
-	SLV_CHR_GROUP_TYPE_LIST,
+	SLV_CHR_GROUP_TYPE_SINGLE,
+	SLV_CHR_GROUP_TYPE_ARR,
 };
 
 struct slv_chr_mesh_group {

@@ -131,9 +131,9 @@ static bool save(const void *me)
 	struct slv_err *err = pak->asset.err;
 	char **args = pak->asset.args;
 	FILE *bg = slv_fopen(args[1], "wb", err);
-	bool ret = false;
 	if (!bg)
 		return false;
+	bool ret = false;
 	FILE *out_2 = slv_fopen(args[4], "wb", err);
 	if (!out_2)
 		goto close_bg;

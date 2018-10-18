@@ -34,6 +34,7 @@
 	                        "out/apple.3ds out/apple.gif apple.gif")\
 	X(SLV_ERR_CHR_CHUNK_ID, "Unknown chunk identifier")             \
 	X(SLV_ERR_CHR_CHUNK_SZ, "Chunk size mismatch")                  \
+	X(SLV_ERR_CHR_TEX, "Texture buffer size <= 8")                  \
 	X(SLV_ERR_CHR_GROUP_TYPE, "Unknown mesh group type")            \
 	X(SLV_ERR_CHR_MAT, "Unknown material")                          \
 	X(SLV_ERR_CHR_MESH_ID, "Unknown mesh id")                       \

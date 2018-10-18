@@ -218,10 +218,18 @@ static bool load_chunk(struct slv_chr *chr, struct slv_stream *stream,
 		                                sizeof tex->unks[0],
 		                                stream->err))
 		    || !slv_read_le(stream, &tex->cst_1)
-		    || !slv_read_le(stream, &tex->buf_sz)
-		    || !(tex->buf = slv_alloc(tex->buf_sz, 1,
-		                              &(unsigned char) {0},
-		                              stream->err))
+		    || !slv_read_le(stream, &tex->buf_sz))
+			return false;
+		if (tex->buf_sz <= 8) {
+			/*
+			 * The last 8 pixels of every CHR texture are missing
+			 * (the game wrongly overreads them into the next chunk)
+			 */
+			slv_set_err(stream->err, SLV_LIB_SLV, SLV_ERR_CHR_TEX);
+			return false;
+		}
+		if (!(tex->buf = slv_alloc(tex->buf_sz, 1, &(unsigned char) {0},
+		                           stream->err))
 		    || !slv_read_le(stream, &tex->width_1)
 		    || !slv_read_le(stream, &tex->buf_off)
 		    || !slv_read_le(stream, &tex->unk_0)
@@ -230,10 +238,6 @@ static bool load_chunk(struct slv_chr *chr, struct slv_stream *stream,
 		    || !slv_read_le(stream, &tex->unk_3)
 		    || !slv_read_le(stream, &tex->unk_4)
 		    || !slv_read_le_arr(stream, tex->height, tex->unks)
-		    /*
-		     * The last 8 pixels of every CHR texture are missing (the
-		     * game mistakenly overreads them into the next chunk)
-		     */
 		    || !slv_read_buf(stream, tex->buf, tex->buf_sz - 8))
 			return false;
 		break;

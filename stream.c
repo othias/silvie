@@ -198,9 +198,13 @@ bool slv_read_le_f32(struct slv_stream *stream, float *f)
 			*f = (float)(sign * ldexp(sig, -126));
 	else if (exponent == 0xff)
 		if (!sig_ul)
-			*f = (float)sign * INFINITY;
+			*f = (float)sign * HUGE_VALF;
 		else
+#ifdef NAN
 			*f = NAN;
+#else
+			*f = 0.f;
+#endif
 	else
 		*f = (float)(sign * ldexp(sig + 1., exponent - 127));
 	return true;

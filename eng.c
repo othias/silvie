@@ -159,7 +159,7 @@ static bool save_reply(const struct slv_eng_reply *reply, FILE *xml,
 		if (slv_fwrite(text, 1, len, xml, err) != len
 		    || slv_fputs(tag, xml, err) < 0)
 			return false;
-		text = ch + 1;
+		text = &ch[1];
 	}
 	return slv_fprintf(xml, err, "%s</reply>\n", text) >= 0;
 }

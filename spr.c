@@ -150,7 +150,6 @@ struct saved_frame {
 static bool read_rle(const struct slv_spr_frame *frame,
                      struct saved_frame *saved, struct slv_err *err)
 {
-	saved->free_buf = true;
 	struct slv_stream *stream = slv_new_ms(frame->data, frame->sz, err);
 	if (!stream)
 		return false;
@@ -167,6 +166,7 @@ static bool read_rle(const struct slv_spr_frame *frame,
 	}
 	if (!(saved->buf = slv_malloc(width * height, err)))
 		goto del_stream;
+	saved->free_buf = true;
 	for (size_t i = 0; i < height; ++i)
 		if (!read_rle_strides(&saved->buf[i * width], stream))
 			goto del_stream;
@@ -203,7 +203,6 @@ static bool read_mask_strides(unsigned char *row, struct slv_stream *stream)
 static bool read_has_masks(const struct slv_spr_frame *frame,
                            struct saved_frame *saved, struct slv_err *err)
 {
-	saved->free_buf = false;
 	struct slv_stream *stream = slv_new_ms(frame->data, frame->sz, err);
 	if (!stream)
 		return false;
@@ -232,7 +231,6 @@ static bool read_plain(const struct slv_spr_frame *frame,
                        struct saved_frame *saved, struct slv_err *err)
 {
 	(void)err;
-	saved->free_buf = false;
 	saved->buf = frame->data;
 	return true;
 }
@@ -241,8 +239,8 @@ static bool save_anim(const struct slv_spr_anim *anim,
                       struct saved_frame *frames, const struct slv_spr *spr,
                       struct slv_gif_opts *opts)
 {
-	if (anim->num_frames == 1)
-		return true; // Skip one-frame animations
+	if (anim->num_frames <= 1)
+		return true;
 	int left = INT_MAX;
 	int top = INT_MAX;
 	int right = INT_MIN;
@@ -363,8 +361,8 @@ static bool save(const void *me)
 	ctx.values[0] = "anim";
 	for (size_t i = 0; i < hdr->num_anims; ++i) {
 		if (slv_sprintf(ctx.values[1], spr->asset.err, "%.3zu", i) < 0
-		    || ((void)slv_subst(&ctx), !save_anim(&spr->anims[i],
-		                                          frames, spr, &opts)))
+		    || (slv_subst(&ctx), !save_anim(&spr->anims[i], frames, spr,
+		                                    &opts)))
 			goto free_frames;
 	}
 	opts.animated = false;

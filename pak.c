@@ -39,16 +39,16 @@ struct rnc_hdr {
 	unsigned long packed_sz;
 };
 
-static bool load(void *me, struct slv_stream *stream)
+static bool load(void *me, struct slv_stream *rnc_stream)
 {
 	size_t hdr_sz = 18;
-	unsigned char *packed = slv_malloc(hdr_sz, stream->err);
+	unsigned char *packed = slv_malloc(hdr_sz, rnc_stream->err);
 	if (!packed)
 		return false;
 	bool ret = false;
 	struct slv_stream *hdr_stream;
-	if (!slv_read_buf(stream, packed, hdr_sz)
-	    || !(hdr_stream = slv_new_ms(packed, hdr_sz, stream->err)))
+	if (!slv_read_buf(rnc_stream, packed, hdr_sz)
+	    || !(hdr_stream = slv_new_ms(packed, hdr_sz, rnc_stream->err)))
 		goto free_packed;
 	struct rnc_hdr hdr;
 	if (!slv_read_buf(hdr_stream, &hdr.magic[0], sizeof hdr.magic)
@@ -58,49 +58,47 @@ static bool load(void *me, struct slv_stream *stream)
 		goto del_hdr_stream;
 	size_t pak_sz = hdr_sz + hdr.packed_sz;
 	// The RNC library needs 8 extra bytes for packed and unpacked buffers
-	unsigned char *tmp = slv_realloc(packed, pak_sz + 8, stream->err);
+	unsigned char *tmp = slv_realloc(packed, pak_sz + 8, rnc_stream->err);
 	if (!tmp)
 		goto del_hdr_stream;
 	packed = tmp;
 	unsigned char *unpacked;
 	size_t unpacked_sz = hdr.unpacked_sz;
-	if (!slv_read_buf(stream, &packed[hdr_sz], hdr.packed_sz)
-	    || !(unpacked = slv_malloc(unpacked_sz + 8, stream->err)))
+	if (!slv_read_buf(rnc_stream, &packed[hdr_sz], hdr.packed_sz)
+	    || !(unpacked = slv_malloc(unpacked_sz + 8, rnc_stream->err)))
 		goto del_hdr_stream;
 	long rnc_ret = rnc_unpack(packed, unpacked);
 	if (rnc_ret < 0) {
-		stream->err->lib = SLV_LIB_RNC;
-		stream->err->rnc_code = rnc_ret;
+		rnc_stream->err->lib = SLV_LIB_RNC;
+		rnc_stream->err->rnc_code = rnc_ret;
 		goto free_unpacked;
 	}
-	struct slv_stream *unpacked_stream;
-	if (!(unpacked_stream = slv_new_ms(unpacked, unpacked_sz, stream->err)))
+	struct slv_stream *stream;
+	if (!(stream = slv_new_ms(unpacked, unpacked_sz, rnc_stream->err)))
 		goto free_unpacked;
 	struct slv_pak *pak = me;
-	if (!slv_read_le(unpacked_stream, &pak->raw_hdr_sz)
-	    || !slv_read_buf(unpacked_stream, pak->raw_hdr, sizeof pak->raw_hdr)
-	    || !slv_read_le(unpacked_stream, &pak->raw_pal_sz)
-	    || !slv_read_buf(unpacked_stream, pak->raw_pal, sizeof pak->raw_pal)
-	    || !slv_read_le(unpacked_stream, &pak->raw_buf_sz)
+	if (!slv_read_le(stream, &pak->raw_hdr_sz)
+	    || !slv_read_buf(stream, pak->raw_hdr, sizeof pak->raw_hdr)
+	    || !slv_read_le(stream, &pak->raw_pal_sz)
+	    || !slv_read_buf(stream, pak->raw_pal, sizeof pak->raw_pal)
+	    || !slv_read_le(stream, &pak->raw_buf_sz)
 	    || !(pak->raw_buf = slv_malloc(pak->raw_buf_sz, stream->err))
-	    || !slv_read_buf(unpacked_stream, pak->raw_buf, pak->raw_buf_sz)
-	    || !slv_read_le(unpacked_stream, &pak->out_0_sz)
+	    || !slv_read_buf(stream, pak->raw_buf, pak->raw_buf_sz)
+	    || !slv_read_le(stream, &pak->out_0_sz)
 	    || !(pak->out_0_buf = slv_malloc(pak->out_0_sz, stream->err))
-	    || !slv_read_buf(unpacked_stream, pak->out_0_buf, pak->out_0_sz)
-	    || !slv_read_le(unpacked_stream, &pak->out_1_sz)
+	    || !slv_read_buf(stream, pak->out_0_buf, pak->out_0_sz)
+	    || !slv_read_le(stream, &pak->out_1_sz)
 	    || !(pak->out_1_buf = slv_malloc(pak->out_1_sz, stream->err))
-	    || !slv_read_buf(unpacked_stream, pak->out_1_buf, pak->out_1_sz)
-	    || !slv_read_le(unpacked_stream, &pak->out_2_hdr_sz)
-	    || !slv_read_buf(unpacked_stream, pak->out_2_hdr,
-	                     sizeof pak->out_2_hdr)
-	    || !slv_read_le(unpacked_stream, &pak->out_2_buf_sz)
+	    || !slv_read_buf(stream, pak->out_1_buf, pak->out_1_sz)
+	    || !slv_read_le(stream, &pak->out_2_hdr_sz)
+	    || !slv_read_buf(stream, pak->out_2_hdr, sizeof pak->out_2_hdr)
+	    || !slv_read_le(stream, &pak->out_2_buf_sz)
 	    || !(pak->out_2_buf = slv_malloc(pak->out_2_buf_sz, stream->err))
-	    || !slv_read_buf(unpacked_stream, pak->out_2_buf,
-	                     pak->out_2_buf_sz))
-		goto del_unpacked_stream;
+	    || !slv_read_buf(stream, pak->out_2_buf, pak->out_2_buf_sz))
+		goto del_stream;
 	ret = true;
-del_unpacked_stream:
-	SLV_DEL(unpacked_stream);
+del_stream:
+	SLV_DEL(stream);
 free_unpacked:
 	free(unpacked);
 del_hdr_stream:
